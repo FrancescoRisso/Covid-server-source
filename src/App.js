@@ -14,18 +14,10 @@ class App extends React.Component {
 			data: {},
 			allGraphs: [],
 			linesList: [],
-			currentMode: ""
+			currentMode: "",
+			defaultQueryParams: ""
 		};
 	}
-
-	defaultQueryParams = "";
-	getDefaultQueryParams = () => {
-		const query = `?p=0&v=0&g=${this.settings.graphs()}&fd=${"2020-02-24"}&td=${new Date(Date.now())
-			.toISOString()
-			.substr(0, 10)}&l=0`;
-		this.defaultQueryParams = query;
-		return query;
-	};
 
 	render() {
 		return (
@@ -34,7 +26,7 @@ class App extends React.Component {
 					<Switch>
 						<Route exact path="/">
 							{this.state.allGraphs.length !== 0 ? (
-								<Redirect to={`/graph${this.getDefaultQueryParams()}`} />
+								<Redirect to={`/graph${this.state.defaultQueryParams}`} />
 							) : (
 								""
 							)}
@@ -121,7 +113,7 @@ class App extends React.Component {
 											this.state.currentMode != "raw"
 										}
 										selectedMode="raw"
-										lastQuery={this.defaultQueryParams}
+										lastQuery={this.state.defaultQueryParams}
 										data={this.state.data}
 									/>
 								);
@@ -133,6 +125,8 @@ class App extends React.Component {
 		);
 	}
 
+	defaultGraphs = ["Positivi", "Nuovi_positivi"];
+
 	allDbDownloaded = false;
 
 	changeState = (edit) => {
@@ -142,8 +136,9 @@ class App extends React.Component {
 	/* When the query is different from the last one, updates the settings */
 	updateSettings = (queryParams, mode) => {
 		this.allDbDownloaded = false;
+		if (this.state.currentMode != mode) this.setState({ currentMode: mode });
 		if (queryParams != "" && queryParams != this.state.lastQuery) {
-			this.setState({ loading: true, currentMode: mode });
+			this.setState({ loading: true });
 			const settings = {};
 			JSON.stringify(queryParams)
 				.replace(/"/g, "")
@@ -156,7 +151,7 @@ class App extends React.Component {
 			this.settings.update(
 				{
 					startDate: settings.fd,
-					endDate: settings.td,
+					endDate: settings.td == "auto" ? new Date(Date.now()).toISOString().substr(0, 10) : settings.td,
 					percentage: settings.p == "1",
 					variation: settings.v == "1",
 					graphs: settings.g,
@@ -310,18 +305,12 @@ class App extends React.Component {
 	/* Gets the list of possible fields when component is mounted */
 	componentDidMount = () => {
 		Api.getFieldsList().then((fields) => {
-			this.settings.update(
-				{
-					startDate: "2020-02-24",
-					endDate: "2020-11-16",
-					percentage: false,
-					variation: false,
-					logarithmic: false,
-					graphs: this.graphsNamesToNum(["Positivi", "Nuovi_positivi"], fields.list).join("")
-				},
-				fields.list
-			);
-			this.setState({ allGraphs: fields.list });
+			this.setState({
+				allGraphs: fields.list,
+				defaultQueryParams: `?p=0&v=0&g=${this.graphsNamesToNum(this.defaultGraphs, fields.list).join(
+					""
+				)}&fd=${"2020-02-24"}&td=auto&l=0`
+			});
 		});
 	};
 

@@ -53,7 +53,7 @@ class Map extends React.Component {
 
 	render() {
 		return (
-			<div>
+			<div className="mt-3">
 				<div
 					id="map-div"
 					className="vheight-100"
