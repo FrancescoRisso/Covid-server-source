@@ -9,7 +9,6 @@ class Page extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			dataChooserVisible: false,
 			sidebarVisible: false
 		};
 	}
@@ -21,7 +20,6 @@ class Page extends React.Component {
 					selectedMode={this.props.selectedMode}
 					toggleSidebar={this.toggleSidebar}
 					sidebarVisible={this.state.sidebarVisible}
-					toggleDataChooser={this.toggleDataChooser}
 					lastQuery={this.props.lastQuery}
 				/>
 				{this.props.loading ? (
@@ -36,26 +34,23 @@ class Page extends React.Component {
 									currentScale={this.props.currentScale}
 									linesList={this.props.linesList}
 									changeAppState={this.props.changeAppState}
+									percentage={this.props.percentage}
+									variation={this.props.variation}
 								/>
 							</aside>
 						) : (
 							""
 						)}
+						<div className="modal fade " id="changeData">
+							<Control
+								selectedMode={this.props.selectedMode}
+								currentSettings={this.props.currentSettings}
+								allGraphs={this.props.allGraphs}
+								currentScale={this.props.currentScale}
+								graphsNamesToNum={this.props.graphsNamesToNum}
+							/>
+						</div>
 						<span className={this.state.sidebarVisible ? "col-xl-9 col-md-8 px-0" : "col-12"}>
-							{this.state.dataChooserVisible ? (
-								<div className="border rounded red-outline my-3 pb-2">
-									<Control
-										selectedMode={this.props.selectedMode}
-										currentSettings={this.props.currentSettings}
-										allGraphs={this.props.allGraphs}
-										currentScale={this.props.currentScale}
-										graphsNamesToNum={this.props.graphsNamesToNum}
-										toggleDataChooser={this.toggleDataChooser}
-									/>
-								</div>
-							) : (
-								""
-							)}
 							<MainPage
 								viewMode={this.props.selectedMode}
 								data={this.props.data}
@@ -74,12 +69,6 @@ class Page extends React.Component {
 			</div>
 		);
 	}
-
-	toggleDataChooser = () => {
-		this.setState((state) => {
-			return { dataChooserVisible: !state.dataChooserVisible };
-		});
-	};
 
 	toggleSidebar = () => {
 		this.setState((state) => {

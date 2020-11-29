@@ -26,11 +26,29 @@ class Graphs extends React.Component {
 		return (
 			<>
 				{Object.keys(this.props.data).map((graph_name) => {
+					const graphSettings = this.props.allGraphs.filter((x) => x.db == graph_name)[0];
 					return (
 						<div key={graph_name} className="col-xl-6 pb-5 mt-auto">
-							<h1>{this.props.allGraphs.filter((x) => x.db == graph_name)[0].name}</h1>
+							<h1>{graphSettings.name}</h1>
+							{this.props.percentage ? (
+								<p className={graphSettings.alwaysPercentage ? "" : "white-text"}>
+									Questo grafico {graphSettings.alwaysPercentage ? "non" : ""} è rappresentato come
+									percentuale sulla popolazione, in quanto{" "}
+									{graphSettings.alwaysPercentage ? "" : "non"} è già percentuale di suo
+								</p>
+							) : (
+								""
+							)}
+							{this.props.scale == "Logaritmica" ? (
+								<p className={graphSettings.alwaysPercentage ? "" : "white-text"}>
+									Questo grafico {graphSettings.alwaysPercentage ? "non" : ""} è rappresentato in scala logaritmica, in quanto{" "}
+									{graphSettings.alwaysPercentage ? "" : "non"} è una percentuale
+								</p>
+							) : (
+								""
+							)}
 							<Graph
-								percentage={this.props.percentage}
+								percentage={this.props.percentage || graphSettings.alwaysPercentage}
 								name={graph_name}
 								data={this.props.data[graph_name]}
 								linesList={this.props.linesList}

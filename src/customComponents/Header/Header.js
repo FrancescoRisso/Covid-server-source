@@ -22,7 +22,6 @@ class Header extends React.Component {
 					sidebarVisible={this.props.sidebarVisible}
 					selectedMode={this.props.selectedMode}
 					modes={this.state.modes}
-					toggleDataChooser={this.props.toggleDataChooser}
 					lastQuery={this.props.lastQuery}
 				/>
 				<div className="rounded red-bg mt-2 white-text control-panel p-2 justify-content-center d-md-none">
@@ -32,7 +31,6 @@ class Header extends React.Component {
 						sidebarVisible={this.props.sidebarVisible}
 						selectedMode={this.props.selectedMode}
 						modes={this.state.modes}
-						toggleDataChooser={this.props.toggleDataChooser}
 						lastQuery={this.props.lastQuery}
 					/>
 				</div>

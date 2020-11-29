@@ -6,7 +6,7 @@ const graphSettings = ["Lineare", "Logaritmica"];
 
 class Sidebar extends React.Component {
 	filterFunc = (item) => {
-		if (this.props.percentage || this.props.table == "VARIAZIONE") return item != "Logaritmica";
+		if (this.props.percentage || this.props.variation) return item != "Logaritmica";
 		else return true;
 	};
 
@@ -38,7 +38,8 @@ class Sidebar extends React.Component {
 											key={item}
 											name={item}
 											classes="btn btn-outline-danger"
-											goto={`${this.props.lastQuery.slice(0, -4)}&l=${
+											checked={this.props.lastQuery.includes(`l=${item=="Lineare"? "0":"1"}`)}
+											goto={`/graph${this.props.lastQuery.slice(0, -4)}&l=${
 												item == "Lineare" ? "0" : "1"
 											}`}
 										/>

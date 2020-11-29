@@ -39,7 +39,8 @@ class HeaderContent extends React.Component {
 								? "btn btn-danger border ml-auto invisible"
 								: "btn btn-danger border ml-auto"
 						}
-						onClick={this.props.toggleDataChooser}
+						data-toggle="modal"
+						data-target="#changeData"
 					>
 						Cambia dati
 					</button>

@@ -43,7 +43,7 @@ class Graph extends React.Component {
 							allowDataOverflow={true}
 						/>
 					)}
-					<Tooltip />
+					<Tooltip formatter={(label)=>{return this.props.percentage? label.toFixed(4) + "%" : label}}/>
 				</LineChart>
 			</ResponsiveContainer>
 		);
