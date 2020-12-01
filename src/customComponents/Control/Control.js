@@ -1,6 +1,7 @@
 import React from "react";
 import ControlOption from "./ControlOption.js";
 import ControlDate from "./ControlDate.js";
+import ControlGraphMenu from "./ControlGraphMenu.js";
 import { Redirect } from "react-router-dom";
 
 class Control extends React.Component {
@@ -127,128 +128,25 @@ class Control extends React.Component {
 							</div>
 							<hr />
 							<div className="row">
-								<div className="form-group col-12 col-sm-6">
-									<p
-										className="hand"
-										onClick={() => {
-											this.setState((state) => {
-												return { viewMenu1: !state.viewMenu1 };
-											});
-										}}
-									>
-										<b>
-											Seleziona i campi che vuoi vedere{" "}
-											<span className="py-auto">{this.state.viewMenu1 ? "▴" : "▾"}</span>
-										</b>
-									</p>
-									<div className={this.state.viewMenu1 ? "m-2" : "d-none"}>
-										<p>
-											<u
-												className="hand"
-												onClick={() => {
-													this.setState({
-														graphs: this.props.allGraphs.map((item) => {
-															return item.db;
-														})
-													});
-												}}
-											>
-												Seleziona tutti
-											</u>
-											{" - "}
-											<u
-												className="hand"
-												onClick={() => {
-													this.setState({ graphs: [] });
-												}}
-											>
-												Deseleziona tutti
-											</u>
-										</p>
-										{this.props.allGraphs
-											.filter((x) => {
-												return !x.alwaysPercentage;
-											})
-											.map((field) => {
-												return (
-													<ControlOption
-														key={field.name}
-														name={`${field.name}${field.alwaysPercentage ? " *" : ""}`}
-														isChecked={this.state.graphs.indexOf(field.db) != -1}
-														inputType="checkbox"
-														clickEvent={() => {
-															const index = this.state.graphs.indexOf(field.db);
-															let graphs = this.state.graphs;
-															if (index != -1) graphs.splice(index, 1);
-															else graphs.push(field.db);
-															this.setState({ graphs: graphs });
-														}}
-													/>
-												);
-											})}
-									</div>
-								</div>
-								<div className="form-group col-12 col-sm-6">
-									<p
-										className="hand"
-										onClick={() => {
-											this.setState((state) => {
-												return { viewMenu2: !state.viewMenu2 };
-											});
-										}}
-									>
-										<b>
-											Seleziona i confronti che vuoi vedere{" "}
-											<span className="py-auto">{this.state.viewMenu2 ? "▴" : "▾"}</span>
-										</b>
-									</p>
-									<div className={this.state.viewMenu2 ? "m-2" : "d-none"}>
-										<p>
-											<u
-												className="hand"
-												onClick={() => {
-													this.setState({
-														graphs: this.props.allGraphs.map((item) => {
-															return item.db;
-														})
-													});
-												}}
-											>
-												Seleziona tutti
-											</u>
-											{" - "}
-											<u
-												className="hand"
-												onClick={() => {
-													this.setState({ graphs: [] });
-												}}
-											>
-												Deseleziona tutti
-											</u>
-										</p>
-										{this.props.allGraphs
-											.filter((x) => {
-												return x.alwaysPercentage;
-											})
-											.map((field) => {
-												return (
-													<ControlOption
-														key={field.name}
-														name={field.name}
-														isChecked={this.state.graphs.indexOf(field.db) != -1}
-														inputType="checkbox"
-														clickEvent={() => {
-															const index = this.state.graphs.indexOf(field.db);
-															let graphs = this.state.graphs;
-															if (index != -1) graphs.splice(index, 1);
-															else graphs.push(field.db);
-															this.setState({ graphs: graphs });
-														}}
-													/>
-												);
-											})}
-									</div>
-								</div>
+								<ControlGraphMenu
+									superSetState={(state) => {
+										this.setState(state);
+									}}
+									selected={this.state.graphs}
+									list={this.props.allGraphs.filter((x) => {
+										return !x.alwaysPercentage;
+									})}
+								/>
+								<ControlGraphMenu
+									superSetState={(state) => {
+										console.log(state)
+										this.setState(state);
+									}}
+									selected={this.state.graphs}
+									list={this.props.allGraphs.filter((x) => {
+										return x.alwaysPercentage;
+									})}
+								/>
 								<p className="mx-auto">
 									<small>
 										I campi del secondo menu sono indipendenti dall'opzione "Come percentuale della

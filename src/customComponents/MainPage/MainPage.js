@@ -27,6 +27,7 @@ class MainPage extends React.Component {
 								scale={this.props.scale}
 								startDate={this.props.startDate}
 								endDate={this.props.endDate}
+								variation={this.props.variation}
 							/>
 						</div>
 					</>
@@ -56,7 +57,10 @@ class MainPage extends React.Component {
 							{this.getMonth(parseInt(this.props.endDate.substr(5, 2)))} {this.props.endDate.substr(0, 4)}
 							)
 						</h5>
-						<i>La colorazione più scura indica una maggiore percentuale della popolazione attualmente positiva</i>
+						<i>
+							La colorazione più scura indica una maggiore percentuale della popolazione attualmente
+							positiva
+						</i>
 						<p className="d-block d-sm-none">
 							Da smartphone la mappa è più complicata da visuaizzare rispetto ad un pc
 						</p>

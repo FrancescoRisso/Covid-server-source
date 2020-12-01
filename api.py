@@ -112,49 +112,70 @@ directReturn = [
     {
         "name": "Ricoverati con sintomi",
         "db": "Ricoverati_con_sintomi",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di persone ricoverate in ospedale (in terapia intensiva o altro) che sono positive e hanno sintomi covid",
+		"short_desc": "di persone positive ricoverate con sintomi"
     }, {
         "name": "Persone in terapia intensiva",
         "db": "Terapia_intensiva",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di persone positive ricoverate in terapia intensiva",
+		"short_desc": "di persone in terapia intensiva"
     }, {
         "name": "Persone ospedalizzate",
         "db": "Ospedalizzati",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di persone positive ricoverate in ospedale (in terapia intensiva o altro) che sono positivi, con o senza sintomi covid",
+		"short_desc": "di persone positive ricoverate"
     }, {
         "name": "Persone in isolamento domiciliare",
         "db": "Isolamento_domiciliare",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di persone positive ma non gravi, che quindi devono restare isolate per non trasmettere il virus, ma non necessitano dell'ospedale",
+		"short_desc": "di persone positive in isolamento"
     }, {
         "name": "Persone positive",
         "db": "Positivi",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di persone che le ASL sanno essere positive (quindi quelle che hanno avuto un tampone positivo, e non sono ancora state dichiarate guarite). Attenzione, potrebbe essere molto diverso dal numero reale di persone positive",
+		"short_desc": "di persone positive"
     }, {
         "name": "Nuovi positivi scoperti",
         "db": "Nuovi_positivi",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di persone risultate positive al tampone",
+		"short_desc": "di persone risultate positive al tampone"
     }, {
         "name": "Persone guarite dimesse",
         "db": "Dimessi_guariti",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di persone guarite e dimesse dall'ospedale",
+		"short_desc": "di persone guarite e dimesse"
     }, {
         "name": "Persone decedute",
         "db": "Deceduti",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+		"description": "Il numero di persone che sono decedute",
+		"short_desc": "di morti"
     }, {
         "name": "Tamponi totali effettuati",
         "db": "Tamponi",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di tamponi effettuati: include i \"Primi tamponi\" e i tamponi di controllo",
+		"short_desc": "di tamponi totali effettuati"
     }, {
         "name": "Tamponi su persone non note positive",
         "db": "Casi_testati",
-        "alwaysPercentage": False
+        "alwaysPercentage": False,
+        "description": "Il numero di \"Primi tamponi\" effettuati, cioè il numero di tamponi non di controllo effettuati",
+		"short_desc": "di \"Primi tamponi\""
     }
 ]
 calcReturn = [{
     "name": "Percentuale di tamponi positivi",
     "db": "Perc_tamp_pos",
-    "alwaysPercentage": True
+    "alwaysPercentage": True,
+    "description": "Quanti tamponi fatti sono risultati positivi?"
 }]
 allReturn = directReturn + calcReturn
 
@@ -167,18 +188,25 @@ calcReturnKeys = list(map(getNameOfObj, calcReturn))
 #
 
 def Perc_tamp_pos(fromDate, toDate, table, tamponi, positivi):
-    tamponi = tamponi if tamponi else getParamFromQuery(
-        "Casi_testati", fromDate, toDate, table, False)
-    positivi = positivi if positivi else getParamFromQuery(
-        "Nuovi_positivi", fromDate, toDate, table, False)
-    result = []
-    for i in range(len(tamponi)):
-        dateItem = {"data": tamponi[i]["data"]}
-        for region in tamponi[i].keys():
+    tamponi = tamponi if tamponi else getParamFromQuery("Casi_testati", fromDate, toDate, "STORICO", False)
+    positivi = positivi if positivi else getParamFromQuery("Nuovi_positivi", fromDate, toDate, "STORICO", False)
+    if table == "VARIAZIONE":
+        result = Perc_tamp_pos(fromDate, toDate, "STORICO", tamponi, positivi)
+        for i in range(len(result)-1, 0, -1):
+            for region in result[i].keys():
+                if region != "data":
+                    result[i][region] = result[i][region] - result[i-1][region]
+        for region in result[0].keys():
             if region != "data":
-                dateItem[region] = 100 * positivi[i][region] / \
-                    tamponi[i][region] if tamponi[i][region] != 0 else 0
-        result.append(dateItem)
+                result[0][region] = 0
+    else:
+        result = []
+        for i in range(len(tamponi)):
+            dateItem = {"data": tamponi[i]["data"]}
+            for region in tamponi[i].keys():
+                if region != "data":
+                    dateItem[region] = 100 * positivi[i][region] / tamponi[i][region] if tamponi[i][region] != 0 else 0
+            result.append(dateItem)
     return result
 
 
@@ -339,12 +367,10 @@ def values():
                 resultObj[param] = getParamFromQuery(
                     param, fromDate, toDate, table, perc)
             elif param == "Perc_tamp_pos":
-                if perc:
-                    resultObj[param] = Perc_tamp_pos(
-                        fromDate, toDate, table, None, None)
+                if perc or table=="VARIAZIONE":
+                    resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, None, None)
                 else:
-                    resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, resultObj.get(
-                        "Casi_testati"), resultObj.get("Nuovi_positivi"))
+                    resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, resultObj.get("Casi_testati"), resultObj.get("Nuovi_positivi"))
 
         return resultObj
 
