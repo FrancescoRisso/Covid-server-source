@@ -136,6 +136,7 @@ class Control extends React.Component {
 									list={this.props.allGraphs.filter((x) => {
 										return !x.alwaysPercentage;
 									})}
+									what="campi"
 								/>
 								<ControlGraphMenu
 									superSetState={(state) => {
@@ -146,6 +147,7 @@ class Control extends React.Component {
 									list={this.props.allGraphs.filter((x) => {
 										return x.alwaysPercentage;
 									})}
+									what="confronti"
 								/>
 								<p className="mx-auto">
 									<small>

@@ -171,12 +171,34 @@ directReturn = [
 		"short_desc": "di \"Primi tamponi\""
     }
 ]
-calcReturn = [{
-    "name": "Percentuale di tamponi positivi",
-    "db": "Perc_tamp_pos",
-    "alwaysPercentage": True,
-    "description": "Quanti tamponi fatti sono risultati positivi?"
-}]
+calcReturn = [
+    {
+        "name": "Percentuale di tamponi positivi",
+        "db": "Perc_tamp_pos",
+        "alwaysPercentage": True,
+        "description": "Quanti tamponi fatti sono risultati positivi?"
+    }, {
+        "name": "Percentuale di positivi deceduti",
+        "db": "Perc_pos_dec",
+        "alwaysPercentage": True,
+        "description": "Quante persone che sono state testate positive sono morte?"
+    }, {
+        "name": "Percentuale di positivi ospedalizzati",
+        "db": "Perc_pos_osp",
+        "alwaysPercentage": True,
+        "description": "Quante persone che sono state testate positive sono state ricoverate in ospedale?"
+    }, {
+        "name": "Percentuale di ospedalizzati in terapia intensiva",
+        "db": "Perc_osp_intens",
+        "alwaysPercentage": True,
+        "description": "Quante persone che sono ricoverate in ospedale sono in terapia intensiva?"
+    }, {
+        "name": "Percentuale di positivi non ospedalizzati",
+        "db": "Perc_pos_isolam",
+        "alwaysPercentage": True,
+        "description": "Quante persone che sono positive non necessitano di essere ricoverate in ospedale?"
+    }
+]
 allReturn = directReturn + calcReturn
 
 directReturnKeys = list(map(getNameOfObj, directReturn))
@@ -206,6 +228,98 @@ def Perc_tamp_pos(fromDate, toDate, table, tamponi, positivi):
             for region in tamponi[i].keys():
                 if region != "data":
                     dateItem[region] = 100 * positivi[i][region] / tamponi[i][region] if tamponi[i][region] != 0 else 0
+            result.append(dateItem)
+    return result
+
+
+def Perc_pos_dec(fromDate, toDate, table, deceduti, positivi):
+    deceduti = deceduti if deceduti else getParamFromQuery("Deceduti", fromDate, toDate, "STORICO", False)
+    positivi = positivi if positivi else getParamFromQuery("Positivi", fromDate, toDate, "STORICO", False)
+    if table == "VARIAZIONE":
+        result = Perc_pos_dec(fromDate, toDate, "STORICO", deceduti, positivi)
+        for i in range(len(result)-1, 0, -1):
+            for region in result[i].keys():
+                if region != "data":
+                    result[i][region] = result[i][region] - result[i-1][region]
+        for region in result[0].keys():
+            if region != "data":
+                result[0][region] = 0
+    else:
+        result = []
+        for i in range(len(deceduti)):
+            dateItem = {"data": deceduti[i]["data"]}
+            for region in deceduti[i].keys():
+                if region != "data":
+                    dateItem[region] = 100 * deceduti[i][region] / positivi[i][region] if positivi[i][region] != 0 else 0
+            result.append(dateItem)
+    return result
+
+
+def Perc_pos_osp(fromDate, toDate, table, ospedalizzati, positivi):
+    ospedalizzati = ospedalizzati if ospedalizzati else getParamFromQuery("Ospedalizzati", fromDate, toDate, "STORICO", False)
+    positivi = positivi if positivi else getParamFromQuery("Positivi", fromDate, toDate, "STORICO", False)
+    if table == "VARIAZIONE":
+        result = Perc_pos_osp(fromDate, toDate, "STORICO", ospedalizzati, positivi)
+        for i in range(len(result)-1, 0, -1):
+            for region in result[i].keys():
+                if region != "data":
+                    result[i][region] = result[i][region] - result[i-1][region]
+        for region in result[0].keys():
+            if region != "data":
+                result[0][region] = 0
+    else:
+        result = []
+        for i in range(len(ospedalizzati)):
+            dateItem = {"data": ospedalizzati[i]["data"]}
+            for region in ospedalizzati[i].keys():
+                if region != "data":
+                    dateItem[region] = 100 * ospedalizzati[i][region] / positivi[i][region] if positivi[i][region] != 0 else 0
+            result.append(dateItem)
+    return result
+
+
+def Perc_pos_intens(fromDate, toDate, table, ospedalizzati, terapia_intensiva):
+    ospedalizzati = ospedalizzati if ospedalizzati else getParamFromQuery("Ospedalizzati", fromDate, toDate, "STORICO", False)
+    terapia_intensiva = terapia_intensiva if terapia_intensiva else getParamFromQuery("Terapia_intensiva", fromDate, toDate, "STORICO", False)
+    if table == "VARIAZIONE":
+        result = Perc_pos_intens(fromDate, toDate, "STORICO", ospedalizzati, terapia_intensiva)
+        for i in range(len(result)-1, 0, -1):
+            for region in result[i].keys():
+                if region != "data":
+                    result[i][region] = result[i][region] - result[i-1][region]
+        for region in result[0].keys():
+            if region != "data":
+                result[0][region] = 0
+    else:
+        result = []
+        for i in range(len(ospedalizzati)):
+            dateItem = {"data": ospedalizzati[i]["data"]}
+            for region in ospedalizzati[i].keys():
+                if region != "data":
+                    dateItem[region] = 100 * terapia_intensiva[i][region] / ospedalizzati[i][region] if ospedalizzati[i][region] != 0 else 0
+            result.append(dateItem)
+    return result
+
+
+def Perc_pos_isolam(fromDate, toDate, table, positivi, isolamento):
+    positivi = positivi if positivi else getParamFromQuery("positivi", fromDate, toDate, "STORICO", False)
+    isolamento = isolamento if isolamento else getParamFromQuery("Isolamento_domiciliare", fromDate, toDate, "STORICO", False)
+    if table == "VARIAZIONE":
+        result = Perc_pos_isolam(fromDate, toDate, "STORICO", positivi, isolamento)
+        for i in range(len(result)-1, 0, -1):
+            for region in result[i].keys():
+                if region != "data":
+                    result[i][region] = result[i][region] - result[i-1][region]
+        for region in result[0].keys():
+            if region != "data":
+                result[0][region] = 0
+    else:
+        result = []
+        for i in range(len(positivi)):
+            dateItem = {"data": positivi[i]["data"]}
+            for region in positivi[i].keys():
+                if region != "data":
+                    dateItem[region] = 100 * isolamento[i][region] / positivi[i][region] if positivi[i][region] != 0 else 0
             result.append(dateItem)
     return result
 
@@ -366,11 +480,26 @@ def values():
             if param in directReturnKeys:
                 resultObj[param] = getParamFromQuery(
                     param, fromDate, toDate, table, perc)
+
             elif param == "Perc_tamp_pos":
-                if perc or table=="VARIAZIONE":
-                    resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, None, None)
-                else:
-                    resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, resultObj.get("Casi_testati"), resultObj.get("Nuovi_positivi"))
+                if perc or table=="VARIAZIONE": resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, None, None)
+                else: resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, resultObj.get("Casi_testati"), resultObj.get("Nuovi_positivi"))
+
+            elif param == "Perc_pos_dec":
+                if perc or table=="VARIAZIONE": resultObj[param] = Perc_pos_dec(fromDate, toDate, table, None, None)
+                else: resultObj[param] = Perc_pos_dec(fromDate, toDate, table, resultObj.get("Deceduti"), resultObj.get("Positivi"))
+
+            elif param == "Perc_pos_osp":
+                if perc or table=="VARIAZIONE": resultObj[param] = Perc_pos_osp(fromDate, toDate, table, None, None)
+                else: resultObj[param] = Perc_pos_osp(fromDate, toDate, table, resultObj.get("Ospedalizzati"), resultObj.get("Positivi"))
+
+            elif param == "Perc_osp_intens":
+                if perc or table=="VARIAZIONE": resultObj[param] = Perc_pos_intens(fromDate, toDate, table, None, None)
+                else: resultObj[param] = Perc_pos_intens(fromDate, toDate, table, resultObj.get("Ospedalizzati"), resultObj.get("Terapia_intensiva"))
+
+            elif param == "Perc_pos_isolam":
+                if perc or table=="VARIAZIONE": resultObj[param] = Perc_pos_isolam(fromDate, toDate, table, None, None)
+                else: resultObj[param] = Perc_pos_isolam(fromDate, toDate, table, resultObj.get("Positivi"), resultObj.get("Isolamento_domiciliare"))
 
         return resultObj
 
