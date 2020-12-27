@@ -15,38 +15,20 @@ class Sidebar extends React.Component {
 			case "raw":
 				return (
 					<div className="border red-outline red-text vheight-100 rounded mt-3 col">
-						<p className="my-3">Non ci sono altre impostazioni per la modalià "Database"</p>
+						<p className="my-3 mt-3">Non ci sono altre impostazioni per la modalià "Database"</p>
 					</div>
 				);
 
 			case "map":
 				return (
 					<div className="border red-outline red-text vheight-100 rounded mt-3 col">
-						<p className="my-3">Non ci sono altre impostazioni per la modalià "Mappa"</p>
+						<p className="my-3 mt-3">Non ci sono altre impostazioni per la modalià "Mappa"</p>
 					</div>
 				);
 			case "graph":
 				return (
 					<div className="border red-outline red-text vheight-100 rounded mt-3 col">
-						<h6>Scegli una scala: </h6>
-						<div className="btn-group mb-2" role="group">
-							{graphSettings
-								.filter((x) => this.filterFunc(x))
-								.map((item) => {
-									return (
-										<ModeChoice
-											key={item}
-											name={item}
-											classes="btn btn-outline-danger"
-											checked={this.props.lastQuery.includes(`l=${item=="Lineare"? "0":"1"}`)}
-											goto={`/graph${this.props.lastQuery.slice(0, -4)}&l=${
-												item == "Lineare" ? "0" : "1"
-											}`}
-										/>
-									);
-								})}
-						</div>
-						<h6>Visualizza i dati di:</h6>
+						<h6 className="mt-3">Visualizza i dati di:</h6>
 						<table className="mx-auto mt-2">
 							<tbody>
 								<SidebarItem
@@ -86,6 +68,27 @@ class Sidebar extends React.Component {
 								<b>Mostra tutti</b>
 							</small>
 						</button>
+						<hr />
+						<h6>Scegli una scala: </h6>
+						<div className="btn-group mb-2" role="group">
+							{graphSettings
+								.filter((x) => this.filterFunc(x))
+								.map((item) => {
+									return (
+										<ModeChoice
+											key={item}
+											name={item}
+											classes="btn btn-outline-danger"
+											checked={this.props.lastQuery.includes(
+												`l=${item == "Lineare" ? "0" : "1"}`
+											)}
+											goto={`/graph${this.props.lastQuery.slice(0, -4)}&l=${
+												item == "Lineare" ? "0" : "1"
+											}`}
+										/>
+									);
+								})}
+						</div>
 					</div>
 				);
 		}

@@ -12,7 +12,7 @@ class ControlDate extends React.Component {
 					className="form-control"
 					type="date"
 					defaultValue={this.props.date}
-					onChange={(ev) => {
+					onBlur={(ev) => {
 						this.props.onUpdate(ev);
 					}}
 				></input>

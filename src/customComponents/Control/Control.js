@@ -140,7 +140,6 @@ class Control extends React.Component {
 								/>
 								<ControlGraphMenu
 									superSetState={(state) => {
-										console.log(state)
 										this.setState(state);
 									}}
 									selected={this.state.graphs}

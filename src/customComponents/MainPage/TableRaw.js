@@ -27,7 +27,9 @@ class TableRaw extends React.Component {
 						<ChooseRange
 							range={[25, 50, 100, 250, 500, "Tutti"]}
 							onclick={this.changeview}
+							number={this.state.number}
 							selection={this.state}
+							name={this.props.name}
 						/>
 						<Scroll location="right" data={this.state} onclick={this.changeview} />
 					</div>
@@ -36,6 +38,7 @@ class TableRaw extends React.Component {
 					<ChooseRange
 						range={[25, 50, 100, 250, 500, "Tutti"]}
 						onclick={this.changeview}
+						number={this.state.number}
 						selection={this.state}
 					/>
 					<div className="row py-2">

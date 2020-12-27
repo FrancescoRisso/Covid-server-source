@@ -19,7 +19,8 @@ class ControlGraphMenu extends React.Component {
 					}}
 				>
 					<b>
-						Seleziona i {this.props.what} che vuoi vedere <span className="py-auto">{this.state.open ? "▴" : "▾"}</span>
+						Seleziona i {this.props.what} che vuoi vedere{" "}
+						<span className="py-auto">{this.state.open ? "▴" : "▾"}</span>
 					</b>
 				</p>
 				<div className={this.state.open ? "m-2" : "d-none"}>

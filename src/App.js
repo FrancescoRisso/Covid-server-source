@@ -1,8 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link, Redirect, useParams } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom";
 import "./App.css";
 import * as Api from "./api.js";
 import Page from "./customComponents/Page";
+import Header from "./customComponents/Header/Header";
+import MainMenu from "./customComponents/MainMenu";
+import FirstPage from "./customComponents/discoursivePages/FirstPage/FirstPage";
 
 class App extends React.Component {
 	constructor(props) {
@@ -15,7 +18,8 @@ class App extends React.Component {
 			allGraphs: [],
 			linesList: [],
 			currentMode: "",
-			defaultQueryParams: ""
+			defaultQueryParams: "",
+			sidebarVisible: false
 		};
 	}
 
@@ -25,11 +29,12 @@ class App extends React.Component {
 				<div className="App container-fluid px-xl-3 vheight-100">
 					<Switch>
 						<Route exact path="/">
-							{this.state.allGraphs.length !== 0 ? (
-								<Redirect to={`/graph${this.state.defaultQueryParams}`} />
-							) : (
-								""
-							)}
+							<FirstPage
+								toggleSidebar={this.toggleSidebar}
+								sidebarVisible={this.state.sidebarVisible}
+								lastQuery={this.state.lastQuery}
+								defaultQueryParams={this.state.defaultQueryParams}
+							/>
 						</Route>
 						<Route
 							path="/graph"
@@ -62,6 +67,9 @@ class App extends React.Component {
 										variation={this.settings.variation()}
 										allGraphs={this.state.allGraphs}
 										data={this.state.data}
+										defaultQueryParams={this.state.defaultQueryParams}
+										toggleSidebar={this.toggleSidebar}
+										sidebarVisible={this.state.sidebarVisible}
 									/>
 								);
 							}}
@@ -97,6 +105,9 @@ class App extends React.Component {
 										variation={this.settings.variation()}
 										allGraphs={this.state.allGraphs}
 										data={this.state.data}
+										defaultQueryParams={this.state.defaultQueryParams}
+										toggleSidebar={this.toggleSidebar}
+										sidebarVisible={this.state.sidebarVisible}
 									/>
 								);
 							}}
@@ -113,17 +124,40 @@ class App extends React.Component {
 											this.state.currentMode != "raw"
 										}
 										selectedMode="raw"
-										lastQuery={this.state.defaultQueryParams}
 										data={this.state.data}
+										lastQuery={this.state.defaultQueryParams}
+										defaultQueryParams={this.state.defaultQueryParams}
+										toggleSidebar={this.toggleSidebar}
+										sidebarVisible={this.state.sidebarVisible}
 									/>
 								);
 							}}
 						/>
+						<Route>
+							<Header
+								selectedMode={""}
+								toggleSidebar={this.toggleSidebar}
+								sidebarVisible={this.state.sidebarVisible}
+								lastQuery={this.props.lastQuery}
+							/>
+							<p className="mt-2">Errore: pagina non trovata</p>
+							<MainMenu
+								selectedMode=""
+								lastQuery={this.state.lastQuery}
+								defaultQueryParams={this.state.defaultQueryParams}
+							/>
+						</Route>
 					</Switch>
 				</div>
 			</Router>
 		);
 	}
+
+	toggleSidebar = () => {
+		this.setState((state) => {
+			return { sidebarVisible: !state.sidebarVisible };
+		});
+	};
 
 	defaultGraphs = ["Positivi", "Nuovi_positivi"];
 
@@ -303,7 +337,7 @@ class App extends React.Component {
 	};
 
 	/* Gets the list of possible fields when component is mounted */
-	componentDidMount = () => {
+	componentDidMount() {
 		Api.getFieldsList().then((fields) => {
 			this.setState({
 				allGraphs: fields.list,
@@ -312,7 +346,7 @@ class App extends React.Component {
 				)}&fd=${"2020-02-24"}&td=auto&l=0`
 			});
 		});
-	};
+	}
 
 	/* The settings not inserted into the state */
 	settings = (() => {

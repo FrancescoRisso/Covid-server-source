@@ -69,6 +69,7 @@ class MainPage extends React.Component {
 							sidebarVisible={this.props.sidebarVisible}
 							allGraphs={this.props.allGraphs}
 							percentage={this.props.percentage}
+							mainMenuVisible={this.props.mainMenuVisible}
 						/>
 					</>
 				);

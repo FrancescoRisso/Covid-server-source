@@ -16,7 +16,10 @@ class Map extends React.Component {
 	}
 
 	componentDidUpdate(lastProps) {
-		if (lastProps.sidebarVisible != this.props.sidebarVisible) {
+		if (
+			lastProps.sidebarVisible != this.props.sidebarVisible ||
+			lastProps.mainMenuVisible != this.props.mainMenuVisible
+		) {
 			const delta = document.getElementById("map-div").getBoundingClientRect();
 			this.setState({ dx: delta.left <= 30 ? 15 : delta.left });
 		}
@@ -45,15 +48,9 @@ class Map extends React.Component {
 			Object.keys(this.state.positivesPercentages)
 				.filter((x) => x != "data")
 				.map((region) => {
-					//const color = 510 * (this.state.positivesPercentages[region] / percMax);
-					const perc = (this.state.positivesPercentages[region] / percMax);
-					//let red;
-					//if (color <= 255) {red = 255; g
-					/*const red = color <= 255? 255: Math.round(color - 255);
-					console.log(`${region} ${red}`)
-					const gb = color <= 255 ? Math.round(255 - color): ;*/
-					const red = perc < 0.5 ? 255 : Math.round((1-2*(perc - 0.5))*200 + 55);
-					const gb = perc < 0.5 ? Math.round((1 - 2*perc)*200 + 55) : 0
+					const perc = this.state.positivesPercentages[region] / percMax;
+					const red = perc < 0.5 ? 255 : Math.round((1 - 2 * (perc - 0.5)) * 200 + 55);
+					const gb = perc < 0.5 ? Math.round((1 - 2 * perc) * 200 + 55) : 0;
 					cssFile.insertRule(`.${region} { fill: rgb(${red}, ${gb}, ${gb}); stroke: black; }`);
 				});
 		});

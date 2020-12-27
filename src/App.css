@@ -49,7 +49,7 @@
 	color: white;
 }
 
-.white-color{
+.white-color {
 	background-color: white;
 }
 
@@ -87,4 +87,28 @@
 
 .no-border {
 	stroke: none !important;
+}
+
+.no-active:hover {
+	cursor: auto;
+	background-color: #dc3545 !important;
+	box-shadow: none !important;
+}
+
+.h-300 {
+	height: 300px;
+}
+
+.selected-item {
+	background-color: #dc3545;
+	color: white;
+}
+
+.selected-item:hover {
+	background-color: #dc3545 !important;
+	color: white;
+}
+
+a.bg-light:hover {
+	background-color: #f5c6cb !important;
 }
