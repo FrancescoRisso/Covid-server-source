@@ -1,5 +1,26 @@
-import GraphIcon from "../images/graphs2.svg";
-import TableIcon from "../images/table1.svg";
+/*
+
+description:
+	All the pages in the website, with the respective icons and links
+	
+state:
+	
+props:
+	
+functions:
+	- get(lastQuery, defaultQueryParams): returns the list
+	
+imported into:
+	- NavMenu
+	- FirstPage
+	
+dependences:
+	- GraphIcon, TableIcon, HomeIcon, ItalyIcon, Null (static images)
+	
+*/
+
+import GraphIcon from "../images/graphs.svg";
+import TableIcon from "../images/table.svg";
 import HomeIcon from "../images/home.svg";
 import ItalyIcon from "../images/Italy.svg";
 import Null from "../images/blank.svg";
@@ -16,14 +37,14 @@ const get = (lastQuery, defaultQueryParams) => {
 		{
 			title: "Grafici",
 			image: GraphIcon,
-			link: `/graph/${lastQuery == "none" ? defaultQueryParams : lastQuery}`,
+			link: `/graph${lastQuery == "none" ? defaultQueryParams : lastQuery}`,
 			code: "graph",
 			inMainPage: true
 		},
 		{
 			title: "Mappa",
 			image: ItalyIcon,
-			link: `/map/${lastQuery == "none" ? defaultQueryParams : lastQuery}`,
+			link: `/map${lastQuery == "none" ? defaultQueryParams : lastQuery}`,
 			code: "map",
 			inMainPage: true
 		},

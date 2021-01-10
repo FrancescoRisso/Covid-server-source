@@ -1,3 +1,21 @@
+/*
+
+description:
+	The loading section, with the spinning spinner
+	
+state:
+	
+props:
+	
+functions:
+	
+imported into:
+	- Page
+	
+dependences:
+	
+*/
+
 import React from "react";
 
 class Loading extends React.Component {

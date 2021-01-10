@@ -1,3 +1,35 @@
+/*
+
+description:
+	The single graph object (including all the related items such as the title, ...)
+	
+state:
+	- asTable: whether to view the data as a graph or as a table (table not yet implemented)
+	
+props:
+	- percentage: whether the data should be displayed as a percentage
+	- graph_name: the name of the graph
+	- data: all the data to be displayed for this graph
+	- linesList: the list of the graph lines, including info about each one's color and visibility
+	- scale: the selected scale ("Lineare" or "Logaritmica")
+	- startDate: the date from which the data is shown
+	- endDate: the date up to which the data is shown
+	- allGraphs: the list of all graphs offered by the server
+	- variation: whether the graph contains the variation values (and not the "real" ones)
+	- ticks: an array containing the dates to show on the x-axis 
+	
+functions:
+	- graphSettings: the settings of this particular graph
+	
+imported into:
+	- Graphs
+	
+dependences:
+	- Graph
+	- iconI, iconBlank (static images)
+	
+*/
+
 import React from "react";
 import Graph from "./Graph.js";
 import iconI from "../../images/i.svg";
@@ -15,7 +47,10 @@ class GraphItems extends React.Component {
 
 	render() {
 		return (
-			<div key={this.props.graph_name} className="col-xl-6 pb-5 mt-auto">
+			<div
+				key={this.props.graph_name}
+				className={`${this.props.graph_name != "Rt" ? "col-xl-6" : "col-12"} pb-5 mt-auto`}
+			>
 				<div
 					className="modal fade"
 					id={`detailsGraph${this.props.graph_name}`}
@@ -86,7 +121,7 @@ class GraphItems extends React.Component {
 					<p className="mx-auto">
 						{this.graphSettings.name} in Italia oggi:{" "}
 						{this.props.variation && this.props.data[this.props.data.length - 1].Italia > 0 ? "+" : ""}
-						{this.props.percentage || this.graphSettings.alwaysPercentage
+						{this.props.percentage || this.graphSettings.alwaysPercentage || this.graphSettings.name == "Rt"
 							? this.props.data[this.props.data.length - 1].Italia.toFixed(4)
 							: this.props.data[this.props.data.length - 1].Italia}
 						{this.graphSettings.alwaysPercentage
@@ -108,7 +143,7 @@ class GraphItems extends React.Component {
 						per {this.state.asTable ? "tornare a vedere il grafico" : "vedere i dati delle regioni"}
 					</p>
 				</div>
-				{this.props.percentage ? (
+				{this.props.percentage && this.graphSettings.name != "Rt" ? (
 					<p className={this.graphSettings.alwaysPercentage ? "" : "white-text"}>
 						Questo grafico {this.graphSettings.alwaysPercentage ? "non" : ""} è rappresentato come
 						percentuale sulla popolazione, in quanto {this.graphSettings.alwaysPercentage ? "" : "non"} è
@@ -117,7 +152,7 @@ class GraphItems extends React.Component {
 				) : (
 					""
 				)}
-				{this.props.scale == "Logaritmica" ? (
+				{this.props.scale == "Logaritmica" && this.graphSettings.name != "Rt" ? (
 					<p className={this.graphSettings.alwaysPercentage ? "" : "white-text"}>
 						Questo grafico {this.graphSettings.alwaysPercentage ? "non" : ""} è rappresentato in scala
 						logaritmica, in quanto {this.graphSettings.alwaysPercentage ? "" : "non"} è una percentuale
@@ -132,7 +167,9 @@ class GraphItems extends React.Component {
 								{this.props.linesList.filter((x) => {
 									return x.name != "Italia" && x.show;
 								}).length == 0 ? (
-									<p className="mt-2 mx-2">Seleziona una o più regioni per vederne i dati di oggi</p>
+									<tr>
+										<td className="m-2">Seleziona una o più regioni per vederne i dati di oggi</td>
+									</tr>
 								) : (
 									this.props.linesList.map((region) => {
 										if (region.show && region.name != "Italia")
@@ -158,11 +195,15 @@ class GraphItems extends React.Component {
 													<td>
 														<small>
 															<b className="pl-2 mr-2">
-																{
-																	this.props.data[this.props.data.length - 1][
-																		region.name
-																	]
-																}
+																{this.props.percentage ||
+																this.graphSettings.alwaysPercentage ||
+																this.graphSettings.name == "Rt"
+																	? this.props.data[this.props.data.length - 1][
+																			region.name
+																	  ].toFixed(4)
+																	: this.props.data[this.props.data.length - 1][
+																			region.name
+																	  ]}
 															</b>
 														</small>
 													</td>
@@ -175,15 +216,14 @@ class GraphItems extends React.Component {
 					</div>
 				) : (
 					<Graph
-						key={this.props.graph_name}
+						key={this.graphSettings.name}
 						percentage={this.props.percentage || this.graphSettings.alwaysPercentage}
-						name={this.props.graph_name}
+						name={this.graphSettings.name}
 						data={this.props.data}
 						linesList={this.props.linesList}
 						scale={this.props.scale}
-						startDate={this.props.startDate}
-						endDate={this.props.endDate}
 						ticks={this.props.ticks}
+						variation={this.props.variation}
 					/>
 				)}
 			</div>

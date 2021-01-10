@@ -1,3 +1,24 @@
+/*
+
+description:
+	A couple of buttons to navigate a table: next/last page or prev/first page (depending on the props)
+	
+state:
+	
+props:
+	- location: where in the page ("right" or "left") the buttons are (this also changes the behaviour, as in the description)
+	- data: which rows the table are currently being shown (starting row, ending row, total number of rows, number of displayed rows)
+	- onclick(): function to update the settings in the parent's memory
+	
+functions:
+	
+imported into:
+	- TableRaw
+	
+dependences:
+	
+*/
+
 import React from "react";
 
 class Scroll extends React.Component {

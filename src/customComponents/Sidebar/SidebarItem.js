@@ -1,3 +1,26 @@
+/*
+
+description:
+	A single item chooser for the sidebar.
+	Chooses to show/hide a certain graphLine
+	
+state:
+	
+props:
+	- item: the name of the specific item
+	- linesList: the list of all the items
+	- changeLinesList(edit): function to change the lines settings in the graphs (edit is the full new settings)
+	
+functions:
+	
+imported into:
+	- Sidebar
+	
+dependences:
+	- imgCrossedEye, imgEye, imgBorderedEye (static images)
+	
+*/
+
 import React from "react";
 import imgCrossedEye from "../../images/invisible.svg";
 import imgEye from "../../images/visible.svg";
@@ -28,8 +51,8 @@ class SidebarItem extends React.Component {
 					<button
 						className="btn btn-sm"
 						onClick={() => {
-							this.props.changeAppState({
-								linesList: this.props.linesList.map((item) => {
+							this.props.changeLinesList(
+								this.props.linesList.map((item) => {
 									if (this.props.item.name != item.name) return item;
 									else {
 										return {
@@ -39,7 +62,7 @@ class SidebarItem extends React.Component {
 										};
 									}
 								})
-							});
+							);
 						}}
 					>
 						<img
@@ -56,8 +79,8 @@ class SidebarItem extends React.Component {
 					<button
 						className="btn btn-sm"
 						onClick={() => {
-							this.props.changeAppState({
-								linesList: this.props.linesList.map((item) => {
+							this.props.changeLinesList(
+								this.props.linesList.map((item) => {
 									if (this.props.item.name != item.name)
 										return {
 											name: item.name,
@@ -72,7 +95,7 @@ class SidebarItem extends React.Component {
 										};
 									}
 								})
-							});
+							);
 						}}
 					>
 						<img

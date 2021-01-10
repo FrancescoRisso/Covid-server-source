@@ -1,3 +1,36 @@
+/*
+
+description:
+	The content of the data main page
+	
+state:
+	
+props:
+	- viewMode:  which mode should the page display
+	- data: all the data to be displayed
+	- linesList: the list of the graph lines, including info about each one's color and visibility
+	- percentage: whether the data should be displayed as a percentage
+	- sidebarVisible: whether the sidebar should be shown
+	- startDate: the date from which the data is shown
+	- endDate: the date up to which the data is shown
+	- variation: whether the graphs contain the variation values (and not the "real" ones)
+	- allGraphs: the list of all graphs offered by the server
+	- scale: the selected scale ("Lineare" or "Logaritmica")
+	- mainMenuVisible: whether the main left menu is displayed or not
+	
+functions:
+	- getMonths(num): returns the name of the num-th month of the year (starting from 1 -> 1: january)
+	
+imported into:
+	- Page
+	
+dependences:
+	- Graphs
+	- TableRaw
+	- Map
+	
+*/
+
 import React from "react";
 import Graphs from "./Graphs.js";
 import TableRaw from "./TableRaw.js";

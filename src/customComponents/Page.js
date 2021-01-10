@@ -1,10 +1,48 @@
+/*
+description:
+	The main page for displaying the data
+
+state:
+	- mainMenuVisible: whether the main left menu should be shown
+
+props:
+	- currentSettings: the settings that are selected
+	- graphsNamesToNum(names, allNames): function for translating the list of names of selected graphs to a string
+		of 0s and 1s which represent which graphs in allGraphs should be loaded
+	- loading: whether the app is downloading data from the server, in which case it should display the spinner
+	- selectedMode: which mode should the page display
+	- lastQuery: the last settings used or "none" if none
+	- currentScale: the selected scale ("Lineare" or "Logaritmica")
+	- linesList: the list of the graph lines, including info about each one's color and visibility
+	- changeLinesList(edit): function to change the lines settings in the graphs (edit is the full new settings)
+	- allGraphs: the list of all graphs offered by the server
+	- data: all the data to be displayed
+	- defaultQueryParams: the default settings for map and graphs view
+	- toggleSidebar(): function to invert the visibility of the sidebar
+	- sidebarVisible: whether the sidebar should be shown
+
+functions:
+
+imported into:
+	- App
+
+dependences:
+	- Header
+	- Sidebar
+	- MainPage
+	- Loading
+	- Control
+	- NavMenu
+
+*/
+
 import React from "react";
 import Header from "./Header/Header";
 import Sidebar from "./Sidebar/Sidebar";
 import MainPage from "./MainPage/MainPage";
 import Loading from "./Loading";
 import Control from "./Control/Control";
-import MainMenu from "./MainMenu";
+import NavMenu from "./NavMenu";
 
 class Page extends React.Component {
 	constructor(props) {
@@ -34,7 +72,7 @@ class Page extends React.Component {
 				) : (
 					<div className="col-12 px-xl-3">
 						<div className="row px-3">
-							<MainMenu
+							<NavMenu
 								selectedMode={this.props.selectedMode}
 								lastQuery={this.props.lastQuery}
 								defaultQueryParams={this.props.defaultQueryParams}
@@ -57,8 +95,8 @@ class Page extends React.Component {
 												lastQuery={this.props.lastQuery}
 												currentScale={this.props.currentScale}
 												linesList={this.props.linesList}
-												changeAppState={this.props.changeAppState}
-												percentage={this.props.percentage}
+												changeLinesList={this.props.changeLinesList}
+												percentage={this.props.currentSettings.percentage}
 												variation={this.props.variation}
 											/>
 										</aside>
@@ -70,11 +108,11 @@ class Page extends React.Component {
 											viewMode={this.props.selectedMode}
 											data={this.props.data}
 											linesList={this.props.linesList}
-											percentage={this.props.percentage}
+											percentage={this.props.currentSettings.percentage}
 											sidebarVisible={this.props.sidebarVisible}
-											startDate={this.props.startDate}
-											endDate={this.props.endDate}
-											variation={this.props.variation}
+											startDate={this.props.currentSettings.startDate}
+											endDate={this.props.currentSettings.endDate}
+											variation={this.props.currentSettings.variation}
 											allGraphs={this.props.allGraphs}
 											scale={this.props.currentScale}
 											mainMenuVisible={this.state.mainMenuVisible}

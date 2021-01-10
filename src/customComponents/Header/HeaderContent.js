@@ -1,4 +1,28 @@
+/*
+
+description:
+	Displays the header of the page
+	
+state:
+	
+props:
+	- big: whether the header is displayed on a window classified md or more (refer to bootstrap for sizes)
+	- selectedMode: which mode is currently selected
+	- toggleSidebar(): function to invert the visibility of the sidebar
+	- sidebarVisible: whether the sidebar is opened
+	- otherStuffToDo: anything special that has to be done when opening/closing the sidebar
+	
+functions:
+	
+imported into:
+	- Header
+	
+dependences:
+	
+*/
+
 import React from "react";
+
 class HeaderContent extends React.Component {
 	render() {
 		return (
@@ -57,20 +81,26 @@ class HeaderContent extends React.Component {
 						{["graph", "map"].indexOf(this.props.selectedMode) != -1 ? (
 							<div className="row">
 								<div className="btn-group mx-auto" role="group" aria-label="Basic example">
-									<button
-										className="btn btn-danger border"
-										type="button"
-										onClick={this.props.toggleSidebar}
-									>
-										{this.props.sidebarVisible
-											? "Chiudi menu regioni"
-											: "Seleziona regioni e scala"}
-									</button>
+									{this.props.selectedMode == "map" ? (
+										""
+									) : (
+										<button
+											className="btn btn-danger border"
+											type="button"
+											onClick={this.props.toggleSidebar}
+										>
+											{this.props.sidebarVisible
+												? "Chiudi menu regioni"
+												: "Seleziona regioni e scala"}
+										</button>
+									)}
 									<button
 										type="button"
 										className="btn btn-danger border"
 										data-toggle="modal"
 										data-target="#changeData"
+										data-keyboard={false}
+										data-backdrop="static"
 									>
 										Cambia dati
 									</button>

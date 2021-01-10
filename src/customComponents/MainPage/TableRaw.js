@@ -1,3 +1,30 @@
+/*
+
+description:
+	Displays the table of the whole database
+	
+state:
+	- from: the index of the first row displayed in the table
+	- to: the index of the last row displayed in the table
+	- number: the number of displayed rows
+	- tot_rows: the total number of rows in the database
+	
+props:
+	- name: the title of the table
+	- data: the content of the table
+	
+functions:
+	- changeView(obj): alter the state with the object obj
+	
+imported into:
+	- MainPage
+	
+dependences:
+	- Scroll
+	- ChooseRange
+	
+*/
+
 import React from "react";
 import Scroll from "./Scroll.js";
 import ChooseRange from "./ChooseRange.js";
@@ -27,7 +54,6 @@ class TableRaw extends React.Component {
 						<ChooseRange
 							range={[25, 50, 100, 250, 500, "Tutti"]}
 							onclick={this.changeview}
-							number={this.state.number}
 							selection={this.state}
 							name={this.props.name}
 						/>
@@ -38,7 +64,6 @@ class TableRaw extends React.Component {
 					<ChooseRange
 						range={[25, 50, 100, 250, 500, "Tutti"]}
 						onclick={this.changeview}
-						number={this.state.number}
 						selection={this.state}
 					/>
 					<div className="row py-2">

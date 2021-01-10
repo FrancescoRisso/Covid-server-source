@@ -1,3 +1,25 @@
+/*
+
+description:
+	A button in the first page of the website
+	
+state:
+	
+props:
+	- generalSettings: the settings that concern all the buttons in the first page
+	- buttonSettings: the settings that concern thi specific button
+	- number: the number of this button among the buttons in the first page
+	
+functions:
+	
+imported into:
+	- FirstPage
+	
+dependences:
+	- Link (from react-router-dom)
+	
+*/
+
 import React from "react";
 import { Link } from "react-router-dom";
 

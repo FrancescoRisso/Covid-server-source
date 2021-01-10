@@ -1,8 +1,34 @@
+/*
+
+description:
+	The navigation menu
+	
+state:
+	
+props:
+	- selectedMode: which mode is displayed right now
+	- lastQuery: the last settings used or "none" if none
+	- defaultQueryParams: the default settings for map and graphs view
+	- otherStuffToDo: extra to do when opening links
+	
+functions:
+	
+imported into:
+	- Page
+	- App
+	- FirstPage
+	
+dependences:
+	- Link (from react-router-dom)
+	- pagesList
+	
+*/
+
 import React from "react";
 import { Link } from "react-router-dom";
 import pagesList from "./pagesList";
 
-class MainMenu extends React.Component {
+class NavMenu extends React.Component {
 	render() {
 		return (
 			<aside className="d-none col-sm-4 col-xl-2 col-12 mt-3 bg-light border red-outline" id="main-menu">
@@ -31,7 +57,10 @@ class MainMenu extends React.Component {
 									className={defaultClasses + " bg-light"}
 									to={choice.link}
 									key={choice.code}
-									onClick={this.props.otherStuffToDo}
+									onClick={() => {
+										document.getElementById("btn-toggle-main-menu").click();
+										this.props.otherStuffToDo();
+									}}
 								>
 									<img src={choice.image} width={30} height={30} className="my-auto" />
 									<span className="m-auto">{choice.title}</span>
@@ -44,4 +73,4 @@ class MainMenu extends React.Component {
 	}
 }
 
-export default MainMenu;
+export default NavMenu;

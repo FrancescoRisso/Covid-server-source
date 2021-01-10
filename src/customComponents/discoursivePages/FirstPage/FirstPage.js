@@ -1,6 +1,41 @@
+/*
+description:
+	The first page you see when you open the website
+
+state:
+	- totWidth: the total width of the container of the page
+	- btnWidth: the width of every button in the page
+	- inBetweenSpace: space between two buttons
+	- count: number of buttons per row
+	- buttons: the list of settings of the buttons
+
+props:
+	- toggleSidebar(): function to invert the visibility of the sidebar
+	- sidebarVisible: whether the sidebar should be shown
+	- lastQuery: the last settings used or "none" if none
+	- defaultQueryParams: the default settings for map and graphs view
+
+functions: 
+	- range(start, stop, step): returns an array of numbers: every [step] numbers starting from [start] up to [stop]
+	- updateDimension(): calculate all the dimensions of the components basing on the dimension of the page
+	- componentDidMount(): add resize eventListener
+	- componentDidUpdate(): compute again pagesList if the links change
+	- componentWillUnmount(): remove resize eventListener
+
+imported into:
+	- App
+
+dependences:
+	- Header
+	- MainMenu
+	- pagesList
+	- FirstPageButton
+
+*/
+
 import React from "react";
 import Header from "../../Header/Header";
-import MainMenu from "../../MainMenu";
+import MainMenu from "../../NavMenu";
 import pagesList from "../../pagesList";
 import FirstPageButton from "./FirstPageButton";
 
@@ -34,10 +69,6 @@ class FirstPage extends React.Component {
 		});
 	};
 
-	componentWillUnmount() {
-		window.removeEventListener("resize", this.updateDimension);
-	}
-
 	componentDidMount() {
 		window.addEventListener("resize", this.updateDimension);
 		this.updateDimension();
@@ -52,6 +83,10 @@ class FirstPage extends React.Component {
 				buttons: pagesList(this.props.lastQuery, this.props.defaultQueryParams).filter((x) => x.inMainPage)
 			});
 		}
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.updateDimension);
 	}
 
 	render() {

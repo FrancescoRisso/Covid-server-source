@@ -1,10 +1,48 @@
+/*
+description:
+	The main component of the website that redirects you to every page
+
+state:
+	- sidebarVisible: whether the sidebar should be shown
+
+props:
+
+functions:
+	- allGraphs[]: the list of all graphs offered by the server
+	- defaultQueryParms: the default settings for map and graphs view
+	- lastQuery: the last settings used or "none" if none
+	- data{}: all the data downloaded from the server
+	- isDbDownloaded: if data contains the full database or not
+	- isGraphdataLoaded: if data contains a map/graph query result
+	- linesList[]: the list of the graph lines, including info about each one's color and visibility
+	- defaultGraphs[]: the names of the graphs shown by default
+
+	- toggleSidebar(): inverts the visibility of the sidebar
+	- changeLinesList(edit): ovverrides linesList with edit
+	- getLinesList(data): calculates linesList and returns it (does not directly update it). Needs to receive the data from the database
+	- graphsNamesToNum(names, allNames): translates the list of names of selected graphs to a string of 0s and 1s which represent which graphs in allGraphs should be loaded
+	- graphsNumToNames(num, allNames): translates the string of 0s and 1s as above back to the array (this compression is for shorting the url)
+
+imported into:
+
+dependences:
+	- api.js (for api calls)
+	- BrowserRouter, Switch, Route (from react-router-dom)
+	- App.css (for css styling)
+	- Page
+	- Header
+	- MainMenu
+	- FirstPage
+
+*/
+
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 import * as Api from "./api.js";
 import Page from "./customComponents/Page";
 import Header from "./customComponents/Header/Header";
-import MainMenu from "./customComponents/MainMenu";
+import MainMenu from "./customComponents/NavMenu";
 import FirstPage from "./customComponents/discoursivePages/FirstPage/FirstPage";
 
 class App extends React.Component {
@@ -12,145 +50,198 @@ class App extends React.Component {
 		super(props);
 
 		this.state = {
-			lastQuery: "none",
-			loading: true,
-			data: {},
-			allGraphs: [],
-			linesList: [],
-			currentMode: "",
-			defaultQueryParams: "",
 			sidebarVisible: false
 		};
 	}
 
+	allGraphs = [];
+	defaultQueryParams = "";
+	lastQuery = "none";
+	data = {};
+	isDbLoaded = false;
+	isGraphdataLoaded = false;
+	linesList = [];
+
 	render() {
-		return (
-			<Router>
-				<div className="App container-fluid px-xl-3 vheight-100">
-					<Switch>
-						<Route exact path="/">
-							<FirstPage
-								toggleSidebar={this.toggleSidebar}
-								sidebarVisible={this.state.sidebarVisible}
-								lastQuery={this.state.lastQuery}
-								defaultQueryParams={this.state.defaultQueryParams}
+		if (this.allGraphs.length == 0) {
+			Api.getFieldsList().then((fields) => {
+				this.allGraphs = fields.list;
+				this.defaultQueryParams = `/p/0/v/0/g/${this.graphsNamesToNum(this.defaultGraphs, fields.list).join(
+					""
+				)}/fd/${"2020-02-24"}/td/auto/s/0/l/0`;
+				this.forceUpdate();
+			});
+			return "";
+		} else
+			return (
+				<Router>
+					<div className="App container-fluid px-xl-3 vheight-100">
+						<Switch>
+							<Route exact path="/">
+								<FirstPage
+									toggleSidebar={this.toggleSidebar}
+									sidebarVisible={this.state.sidebarVisible}
+									lastQuery={this.lastQuery}
+									defaultQueryParams={this.defaultQueryParams}
+								/>
+							</Route>
+							<Route
+								path="/graph/p/:percentage/v/:variation/g/:graphnum/fd/:fromDate/td/:toDate/s/:smooth/l/:logScale"
+								render={({ match }) => {
+									const params = match.params;
+									const thisQuery = `/p/${params.percentage}/v/${params.variation}/g/${params.graphnum}/fd/${params.fromDate}/td/${params.toDate}/s/${params.smooth}/l/${params.logScale}`;
+									if (
+										thisQuery.slice(0, -4) != this.lastQuery.slice(0, -4) ||
+										!this.isGraphdataLoaded
+									) {
+										Api.getGraphs(
+											params.fromDate,
+											params.toDate == "auto"
+												? new Date(Date.now()).toISOString().substr(0, 10)
+												: params.toDate,
+											this.graphsNumToNames(params.graphnum, this.allGraphs),
+											params.variation == "1" ? "VARIAZIONE" : "STORICO",
+											params.percentage == "1",
+											params.smooth == "1"
+										).then((result) => {
+											this.data = result;
+											if (this.linesList.length == 0) this.linesList = this.getLinesList(result);
+											this.lastQuery = thisQuery;
+											this.isGraphdataLoaded = true;
+											this.isDbLoaded = false;
+											this.forceUpdate();
+										});
+										return <Page loading={true} />;
+									}
+									return (
+										<Page
+											currentSettings={{
+												graphs: this.graphsNumToNames(params.graphnum, this.allGraphs),
+												startDate: params.fromDate,
+												endDate:
+													params.toDate == "auto"
+														? new Date(Date.now()).toISOString().substr(0, 10)
+														: params.toDate,
+												variation: params.variation == "1",
+												percentage: params.percentage == "1",
+												smooth: params.smooth == "1"
+											}}
+											graphsNamesToNum={this.graphsNamesToNum}
+											loading={false}
+											selectedMode="graph"
+											lastQuery={this.lastQuery}
+											currentScale={params.logScale == "1" ? "Logaritmica" : "Lineare"}
+											linesList={this.linesList}
+											changeLinesList={this.changeLinesList}
+											allGraphs={this.allGraphs}
+											data={this.data}
+											defaultQueryParams={this.defaultQueryParams}
+											toggleSidebar={this.toggleSidebar}
+											sidebarVisible={this.state.sidebarVisible}
+										/>
+									);
+								}}
 							/>
-						</Route>
-						<Route
-							path="/graph"
-							render={(props) => {
-								if (this.state.allGraphs.length !== 0)
-									this.updateSettings(props.location.search, "graph");
-								return (
-									<Page
-										currentSettings={{
-											graphs: this.settings.graphNames(),
-											startDate: this.settings.startDate(),
-											endDate: this.settings.endDate(),
-											variation: this.settings.variation(),
-											percentage: this.settings.percentage()
-										}}
-										graphsNamesToNum={this.graphsNamesToNum}
-										loading={
-											this.state.allGraphs.length === 0 ||
-											this.state.loading ||
-											this.state.currentMode != "graph"
-										}
-										selectedMode="graph"
-										lastQuery={this.state.lastQuery}
-										currentScale={this.settings.logarithmic() ? "Logaritmica" : "Lineare"}
-										linesList={this.state.linesList}
-										changeAppState={this.changeState}
-										percentage={this.settings.percentage()}
-										startDate={this.settings.startDate()}
-										endDate={this.settings.endDate()}
-										variation={this.settings.variation()}
-										allGraphs={this.state.allGraphs}
-										data={this.state.data}
-										defaultQueryParams={this.state.defaultQueryParams}
-										toggleSidebar={this.toggleSidebar}
-										sidebarVisible={this.state.sidebarVisible}
-									/>
-								);
-							}}
-						/>
-						<Route
-							path="/map"
-							render={(props) => {
-								if (this.state.allGraphs.length !== 0)
-									this.updateSettings(props.location.search, "map");
-								return (
-									<Page
-										currentSettings={{
-											graphs: this.settings.graphNames(),
-											startDate: this.settings.startDate(),
-											endDate: this.settings.endDate(),
-											variation: this.settings.variation(),
-											percentage: this.settings.percentage()
-										}}
-										graphsNamesToNum={this.graphsNamesToNum}
-										loading={
-											this.state.allGraphs.length === 0 ||
-											this.state.loading ||
-											this.state.currentMode != "map"
-										}
-										selectedMode="map"
-										lastQuery={this.state.lastQuery}
-										currentScale={this.settings.logarithmic() ? "Logaritmica" : "Lineare"}
-										linesList={this.state.linesList}
-										changeAppState={this.changeState}
-										percentage={this.settings.percentage()}
-										startDate={this.settings.startDate()}
-										endDate={this.settings.endDate()}
-										variation={this.settings.variation()}
-										allGraphs={this.state.allGraphs}
-										data={this.state.data}
-										defaultQueryParams={this.state.defaultQueryParams}
-										toggleSidebar={this.toggleSidebar}
-										sidebarVisible={this.state.sidebarVisible}
-									/>
-								);
-							}}
-						/>
-						<Route
-							path="/raw"
-							render={() => {
-								if (this.state.allGraphs.length !== 0) this.pushRawData();
-								return (
-									<Page
-										loading={
-											this.state.allGraphs.length === 0 ||
-											this.state.loading ||
-											this.state.currentMode != "raw"
-										}
-										selectedMode="raw"
-										data={this.state.data}
-										lastQuery={this.state.defaultQueryParams}
-										defaultQueryParams={this.state.defaultQueryParams}
-										toggleSidebar={this.toggleSidebar}
-										sidebarVisible={this.state.sidebarVisible}
-									/>
-								);
-							}}
-						/>
-						<Route>
-							<Header
-								selectedMode={""}
-								toggleSidebar={this.toggleSidebar}
-								sidebarVisible={this.state.sidebarVisible}
-								lastQuery={this.props.lastQuery}
+							<Route
+								path="/map/p/:percentage/v/:variation/g/:graphnum/fd/:fromDate/td/:toDate/s/:smooth/l/:logScale"
+								render={({ match }) => {
+									const params = match.params;
+									const thisQuery = `/p/${params.percentage}/v/${params.variation}/g/${params.graphnum}/fd/${params.fromDate}/td/${params.toDate}/s/${params.smooth}/l/${params.logScale}`;
+									if (
+										thisQuery.slice(0, -4) != this.lastQuery.slice(0, -4) ||
+										!this.isGraphdataLoaded
+									) {
+										Api.getGraphs(
+											params.fromDate,
+											params.toDate == "auto"
+												? new Date(Date.now()).toISOString().substr(0, 10)
+												: params.toDate,
+											this.graphsNumToNames(params.graphnum, this.allGraphs),
+											params.variation == "1" ? "VARIAZIONE" : "STORICO",
+											params.percentage == "1"
+										).then((result) => {
+											this.data = result;
+											if (this.linesList.length == 0) this.linesList = this.getLinesList(result);
+											this.lastQuery = thisQuery;
+											this.isGraphdataLoaded = true;
+											this.isDbLoaded = false;
+											this.forceUpdate();
+										});
+										return <Page loading={true} />;
+									}
+									return (
+										<Page
+											currentSettings={{
+												graphs: this.graphsNumToNames(params.graphnum, this.allGraphs),
+												startDate: params.fromDate,
+												endDate:
+													params.toDate == "auto"
+														? new Date(Date.now()).toISOString().substr(0, 10)
+														: params.toDate,
+												variation: params.variation == "1",
+												percentage: params.percentage == "1"
+											}}
+											graphsNamesToNum={this.graphsNamesToNum}
+											loading={false}
+											selectedMode="map"
+											lastQuery={this.lastQuery}
+											currentScale={params.logScale == "1" ? "Logaritmica" : "Lineare"}
+											linesList={this.linesList}
+											changeLinesList={this.changeLinesList}
+											allGraphs={this.allGraphs}
+											data={this.data}
+											defaultQueryParams={this.defaultQueryParams}
+											toggleSidebar={() => {}}
+											sidebarVisible={false}
+										/>
+									);
+								}}
 							/>
-							<p className="mt-2">Errore: pagina non trovata</p>
-							<MainMenu
-								selectedMode=""
-								lastQuery={this.state.lastQuery}
-								defaultQueryParams={this.state.defaultQueryParams}
+							<Route
+								path="/raw"
+								render={() => {
+									if (!this.isDbLoaded) {
+										this.data = this.falseData;
+										Api.getRawData().then((result) => {
+											this.data = result;
+											this.isDbLoaded = true;
+											this.isGraphdataLoaded = false;
+											this.forceUpdate();
+										});
+										return <Page loading={true} />;
+									}
+									return (
+										<Page
+											loading={false}
+											selectedMode="raw"
+											data={this.data}
+											lastQuery={this.lastQuery}
+											defaultQueryParams={this.defaultQueryParams}
+											toggleSidebar={() => {}}
+											sidebarVisible={false}
+											currentSettings={{}}
+										/>
+									);
+								}}
 							/>
-						</Route>
-					</Switch>
-				</div>
-			</Router>
-		);
+							<Route>
+								<Header
+									selectedMode={""}
+									toggleSidebar={this.toggleSidebar}
+									sidebarVisible={this.state.sidebarVisible}
+									lastQuery={this.lastQuery}
+								/>
+								<p className="mt-2">Errore: pagina non trovata</p>
+								<MainMenu
+									selectedMode=""
+									lastQuery={this.lastQuery}
+									defaultQueryParams={this.defaultQueryParams}
+								/>
+							</Route>
+						</Switch>
+					</div>
+				</Router>
+			);
 	}
 
 	toggleSidebar = () => {
@@ -161,76 +252,10 @@ class App extends React.Component {
 
 	defaultGraphs = ["Positivi", "Nuovi_positivi"];
 
-	allDbDownloaded = false;
-
-	changeState = (edit) => {
-		this.setState(edit);
+	changeLinesList = (edit) => {
+		this.linesList = edit;
+		this.forceUpdate();
 	};
-
-	/* When the query is different from the last one, updates the settings */
-	updateSettings = (queryParams, mode) => {
-		this.allDbDownloaded = false;
-		if (this.state.currentMode != mode) this.setState({ currentMode: mode });
-		if (queryParams != "" && queryParams != this.state.lastQuery) {
-			this.setState({ loading: true });
-			const settings = {};
-			JSON.stringify(queryParams)
-				.replace(/"/g, "")
-				.replace("?", "")
-				.split("&")
-				.forEach((item) => {
-					settings[item.split("=")[0]] = item.split("=")[1];
-				});
-
-			this.settings.update(
-				{
-					startDate: settings.fd,
-					endDate: settings.td == "auto" ? new Date(Date.now()).toISOString().substr(0, 10) : settings.td,
-					percentage: settings.p == "1",
-					variation: settings.v == "1",
-					graphs: settings.g,
-					logarithmic: settings.l == "1"
-				},
-				this.state.allGraphs
-			);
-
-			let updateLinesList = false;
-			if (this.state.linesList.length == 0) updateLinesList = true;
-
-			if (queryParams.slice(0, -4) != this.state.lastQuery.slice(0, -4)) this.pushData(updateLinesList);
-			else this.setState({ loading: false });
-			this.setState({ lastQuery: queryParams });
-		}
-	};
-
-	pushRawData = () => {
-		if (!this.allDbDownloaded) {
-			this.allDbDownloaded = true;
-			this.setState({ loading: true, currentMode: "raw" });
-			Api.getRawData().then((data) => {
-				this.setState({ data: data, lastQuery: "", loading: false });
-			});
-		}
-	};
-
-	/* Collects the data from the API and pushes it to the state */
-	pushData(updateLinesList) {
-		if (this.settings.graphNames().length != 0) {
-			Api.getGraphs(
-				this.settings.startDate(),
-				this.settings.endDate(),
-				this.settings.graphNames(),
-				this.settings.variation() ? "VARIAZIONE" : "STORICO",
-				this.settings.percentage()
-			).then((data) => {
-				let lines;
-				if (updateLinesList) lines = this.getLinesList(data);
-				else lines = this.state.linesList;
-
-				this.setState({ data: data, loading: false, linesList: lines });
-			});
-		}
-	}
 
 	getLinesList = (data) => {
 		let array = Object.keys(data[Object.keys(data)[0]][0]);
@@ -335,50 +360,6 @@ class App extends React.Component {
 		});
 		return names;
 	};
-
-	/* Gets the list of possible fields when component is mounted */
-	componentDidMount() {
-		Api.getFieldsList().then((fields) => {
-			this.setState({
-				allGraphs: fields.list,
-				defaultQueryParams: `?p=0&v=0&g=${this.graphsNamesToNum(this.defaultGraphs, fields.list).join(
-					""
-				)}&fd=${"2020-02-24"}&td=auto&l=0`
-			});
-		});
-	}
-
-	/* The settings not inserted into the state */
-	settings = (() => {
-		let settings = {};
-		return {
-			startDate: () => {
-				return settings.startDate;
-			},
-			endDate: () => {
-				return settings.endDate;
-			},
-			graphs: function () {
-				return settings.graphs;
-			},
-			graphNames: () => {
-				return settings.graphNames;
-			},
-			percentage: () => {
-				return settings.percentage;
-			},
-			variation: function () {
-				return settings.variation;
-			},
-			logarithmic: function () {
-				return settings.logarithmic;
-			},
-			update: (newSettings, allGraphs) => {
-				settings = newSettings;
-				settings.graphNames = this.graphsNumToNames(newSettings.graphs, allGraphs);
-			}
-		};
-	})();
 }
 
 export default App;

@@ -1,3 +1,32 @@
+/*
+
+description:
+	A sidebar for choosing the scale and the lines of the graphs
+	
+state:
+	
+props:
+	- selectedMode: which mode is currently selected
+	- lastQuery: the last settings used or "none" if none
+	- currentScale: the selected scale ("Lineare" or "Logaritmica")
+	- linesList: the list of the graph lines, including info about each one's color and visibility
+	- changeLinesList(edit): function to change the lines settings in the graphs (edit is the full new settings)
+	- percentage: whether the graphs are displayed as percentages or not
+	- variation: whether the graphs contain the variation values (and not the "real" ones)
+	
+functions:
+	- graphSettings[]: the possible choices for the graphs scale
+	- filterFunc(item): returns whether the logarithmic scale should be choosable or not
+	
+imported into:
+	- Page
+	
+dependences:
+	- SidebarItem
+	- ModeChoice
+	
+*/
+
 import React from "react";
 import SidebarItem from "./SidebarItem.js";
 import ModeChoice from "../ModeChoice";
@@ -34,7 +63,7 @@ class Sidebar extends React.Component {
 								<SidebarItem
 									item={this.props.linesList.find((x) => x.name == "Italia")}
 									linesList={this.props.linesList}
-									changeAppState={this.props.changeAppState}
+									changeLinesList={this.props.changeLinesList}
 									key="Italia"
 								/>
 								{this.props.linesList.map((item) => {
@@ -43,7 +72,7 @@ class Sidebar extends React.Component {
 											<SidebarItem
 												item={item}
 												linesList={this.props.linesList}
-												changeAppState={this.props.changeAppState}
+												changeLinesList={this.props.changeLinesList}
 												key={item.name}
 											/>
 										);
@@ -53,15 +82,15 @@ class Sidebar extends React.Component {
 						<button
 							className="btn btn-small red-text"
 							onClick={() => {
-								this.props.changeAppState({
-									linesList: this.props.linesList.map((item) => {
+								this.props.changeLinesList(
+									this.props.linesList.map((item) => {
 										return {
 											name: item.name,
 											show: true,
 											color: item.color
 										};
 									})
-								});
+								);
 							}}
 						>
 							<small>
@@ -79,10 +108,7 @@ class Sidebar extends React.Component {
 											key={item}
 											name={item}
 											classes="btn btn-outline-danger"
-											checked={this.props.lastQuery.includes(
-												`l=${item == "Lineare" ? "0" : "1"}`
-											)}
-											goto={`/graph${this.props.lastQuery.slice(0, -4)}&l=${
+											goto={`/graph${this.props.lastQuery.slice(0, -4)}/l/${
 												item == "Lineare" ? "0" : "1"
 											}`}
 										/>

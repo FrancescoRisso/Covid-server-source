@@ -11,13 +11,13 @@ const getRawData = async () => {
 	}
 };
 
-const getGraphs = async (from, to, list, table, perc) => {
+const getGraphs = async (from, to, list, table, perc, smooth) => {
 	let listStr = "";
 	list.forEach((item, index) => {
 		if (index == 1) listStr = item;
 		else listStr = listStr + "," + item;
 	});
-	let response = await fetch(`/api/values?from=${from}&to=${to}&params=${list}&table=${table}&percentage=${perc}`);
+	let response = await fetch(`/api/values?from=${from}&to=${to}&params=${list}&table=${table}&percentage=${perc}&smooth=${smooth}`);
 	let data = await response.json();
 
 	if (response.ok) {

@@ -1,3 +1,36 @@
+/*
+
+description:
+	Displays the map
+	
+state:
+	- selected: which region is selected ("" if none)
+	- mouseX: X coordinate of the mouse pointer
+	- mouseY: Y coordinate of the mouse pointer
+	- dx: needed horizontal shift
+	- positivesPercentages[]: the percentage of positive people in each region, to show as a color on the map
+	
+props:
+	- data: all the data to be displayed
+	- sidebarVisible: whether the sidebar is visible
+	- allGraphs: the list of all graphs offered by the server
+	- percentage: whether the data should be displayed as a percentage
+	- mainMenuVisible: whether the main left menu is displayed or not
+	
+functions:
+	- componentDidMount(): update the css files for the colours and calculate the needed dx
+	- componentDidUpdate(lastProps): calculate the needed dx
+	
+imported into:
+	- MainPage
+	
+dependences:
+	- VectorMap (from reac-vector-maps)
+	- ItalyMap (static json)
+	- api.js (for api calls)
+	
+*/
+
 import React from "react";
 import { VectorMap } from "@south-paw/react-vector-maps";
 import ItalyMap from "./italy-map.js";

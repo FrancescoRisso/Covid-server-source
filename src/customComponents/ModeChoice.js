@@ -1,3 +1,26 @@
+/*
+
+description:
+	A button with a link
+	
+state:
+	
+props:
+	- 
+	
+functions:
+	- name: the text in the link
+	- classes: the HTML classes this button should have
+	- goto: the link thw button should send the user to
+	
+imported into:
+	- Sidebar
+	
+dependences:
+	- NavLink (from react-router-dom)
+	
+*/
+
 import React from "react";
 import { NavLink } from "react-router-dom";
 
