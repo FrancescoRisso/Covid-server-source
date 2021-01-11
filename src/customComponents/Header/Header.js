@@ -10,6 +10,8 @@ props:
 	- sidebarVisible: whether the sidebar is opened
 	- otherStuffToDo: anything special that has to be done when opening/closing the sidebar
 		!important: if nothing has to be done, please pass an empty function ()=>{}
+	- lastQuery: the last settings used or "none" if none
+	- defaultQueryParams: the default settings for map and graphs view
 
 functions:
 
@@ -40,6 +42,8 @@ class Header extends React.Component {
 					sidebarVisible={this.props.sidebarVisible}
 					selectedMode={this.props.selectedMode}
 					otherStuffToDo={this.props.otherStuffToDo}
+					lastQuery={this.props.lastQuery}
+					defaultQueryParams={this.props.defaultQueryParams}
 				/>
 				<div className="rounded red-bg mt-2 white-text control-panel p-2 justify-content-center d-md-none">
 					<HeaderContent
@@ -48,6 +52,8 @@ class Header extends React.Component {
 						sidebarVisible={this.props.sidebarVisible}
 						selectedMode={this.props.selectedMode}
 						otherStuffToDo={this.props.otherStuffToDo}
+						lastQuery={this.props.lastQuery}
+						defaultQueryParams={this.props.defaultQueryParams}
 					/>
 				</div>
 			</div>

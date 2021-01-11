@@ -13,6 +13,7 @@ functions:
 imported into:
 	- NavMenu
 	- FirstPage
+	- Header
 	
 dependences:
 	- GraphIcon, TableIcon, HomeIcon, ItalyIcon, Null (static images)
@@ -23,6 +24,7 @@ import GraphIcon from "../images/graphs.svg";
 import TableIcon from "../images/table.svg";
 import HomeIcon from "../images/home.svg";
 import ItalyIcon from "../images/Italy.svg";
+import RefsIcon from "../images/references.svg";
 import Null from "../images/blank.svg";
 
 const get = (lastQuery, defaultQueryParams) => {
@@ -70,10 +72,10 @@ const get = (lastQuery, defaultQueryParams) => {
 			inMainPage: true
 		},
 		{
-			title: "Fonti (toDo)",
-			image: Null,
-			link: "/",
-			code: "info",
+			title: "Fonti",
+			image: RefsIcon,
+			link: "/refs",
+			code: "refs",
 			inMainPage: true
 		}
 	];

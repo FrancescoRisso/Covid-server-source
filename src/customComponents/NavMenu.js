@@ -17,6 +17,7 @@ imported into:
 	- Page
 	- App
 	- FirstPage
+	- References
 	
 dependences:
 	- Link (from react-router-dom)
@@ -31,7 +32,7 @@ import pagesList from "./pagesList";
 class NavMenu extends React.Component {
 	render() {
 		return (
-			<aside className="d-none col-sm-4 col-xl-2 col-12 mt-3 bg-light border red-outline" id="main-menu">
+			<aside className="d-none col-sm-4 col-xl-2 col-12 mt-3 bg-light border red-outline mb-auto pb-3" id="main-menu">
 				<div className="list-group list-group-flush main-nav">
 					<h3 className="py-2">Vai a...</h3>
 					{pagesList(this.props.lastQuery, this.props.defaultQueryParams).map((choice) => {

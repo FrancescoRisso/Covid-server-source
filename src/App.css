@@ -166,3 +166,8 @@ input:checked + .slider:before {
 .slider.round:before {
 	border-radius: 50%;
 }
+
+.discoursive {
+	font-family: 'Poppins', sans-serif;
+	font-size: larger;
+}

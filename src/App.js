@@ -31,8 +31,9 @@ dependences:
 	- App.css (for css styling)
 	- Page
 	- Header
-	- MainMenu
+	- NavMenu
 	- FirstPage
+	- References
 
 */
 
@@ -42,8 +43,9 @@ import "./App.css";
 import * as Api from "./api.js";
 import Page from "./customComponents/Page";
 import Header from "./customComponents/Header/Header";
-import MainMenu from "./customComponents/NavMenu";
+import NavMenu from "./customComponents/NavMenu";
 import FirstPage from "./customComponents/discoursivePages/FirstPage/FirstPage";
+import References from "./customComponents/discoursivePages/References/References";
 
 class App extends React.Component {
 	constructor(props) {
@@ -224,15 +226,19 @@ class App extends React.Component {
 									);
 								}}
 							/>
+							<Route path="/refs">
+								<References lastQuery={this.lastQuery} defaultQueryParams={this.defaultQueryParams} />
+							</Route>
 							<Route>
 								<Header
 									selectedMode={""}
 									toggleSidebar={this.toggleSidebar}
 									sidebarVisible={this.state.sidebarVisible}
 									lastQuery={this.lastQuery}
+									defaultQueryParams={this.defaultQueryParams}
 								/>
 								<p className="mt-2">Errore: pagina non trovata</p>
-								<MainMenu
+								<NavMenu
 									selectedMode=""
 									lastQuery={this.lastQuery}
 									defaultQueryParams={this.defaultQueryParams}
@@ -250,7 +256,7 @@ class App extends React.Component {
 		});
 	};
 
-	defaultGraphs = ["Positivi", "Nuovi_positivi"];
+	defaultGraphs = ["Positivi", "Nuovi_positivi", "Rt"];
 
 	changeLinesList = (edit) => {
 		this.linesList = edit;

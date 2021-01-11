@@ -27,7 +27,7 @@ imported into:
 
 dependences:
 	- Header
-	- MainMenu
+	- NavMenu
 	- pagesList
 	- FirstPageButton
 
@@ -35,7 +35,7 @@ dependences:
 
 import React from "react";
 import Header from "../../Header/Header";
-import MainMenu from "../../NavMenu";
+import NavMenu from "../../NavMenu";
 import pagesList from "../../pagesList";
 import FirstPageButton from "./FirstPageButton";
 
@@ -97,13 +97,16 @@ class FirstPage extends React.Component {
 					sidebarVisible={this.props.sidebarVisible}
 					selectedMode="initial-page"
 					otherStuffToDo={this.updateDimension}
+					lastQuery={this.props.lastQuery}
+					defaultQueryParams={this.props.defaultQueryParams}
 				/>
 				<div className="col-12">
 					<div className="row mx-0">
-						<MainMenu
+						<NavMenu
 							selectedMode="initial-page"
 							lastQuery={this.props.lastQuery}
 							defaultQueryParams={this.props.defaultQueryParams}
+							otherStuffToDo={()=>{}}
 						/>
 						<div id="main-page" className="col-12">
 							{this.state.btnWidth == 0
