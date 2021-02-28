@@ -1,40 +1,54 @@
 "use strict";
 
-const getRawData = async () => {
+const getRawData = async (firstTry = true) => {
 	let response = await fetch("/api/raw");
-	let data = await response.json();
 
 	if (response.ok) {
+		let data = await response.json();
 		return data;
 	} else {
-		throw data;
+		if (firstTry) {
+			return getRawData(false).catch((e) => {
+				throw e;
+			});
+		} else throw "Error";
 	}
 };
 
-const getGraphs = async (from, to, list, table, perc, smooth) => {
+const getGraphs = async (from, to, list, table, perc, smooth, firstTry = true) => {
 	let listStr = "";
 	list.forEach((item, index) => {
 		if (index == 1) listStr = item;
 		else listStr = listStr + "," + item;
 	});
-	let response = await fetch(`/api/values?from=${from}&to=${to}&params=${list}&table=${table}&percentage=${perc}&smooth=${smooth}`);
-	let data = await response.json();
+	let response = await fetch(
+		`/api/values?from=${from}&to=${to}&params=${list}&table=${table}&percentage=${perc}&smooth=${smooth}`
+	);
 
 	if (response.ok) {
+		let data = await response.json();
 		return data;
 	} else {
-		throw data;
+		if (firstTry) {
+			return getGraphs(from, to, list, table, perc, smooth, false).catch((e) => {
+				throw e;
+			});
+		} else throw "Error";
 	}
 };
 
-const getFieldsList = async () => {
+const getFieldsList = async (firstTry = true) => {
 	let response = await fetch(`/api/fieldlist`);
-	let data = await response.json();
 
 	if (response.ok) {
+		let data = await response.json();
 		return data;
 	} else {
-		throw data;
+		if (firstTry) {
+			return getFieldsList(false).catch((e) => {
+				throw e;
+			});
+		} else throw "Error";
 	}
 };
 

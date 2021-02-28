@@ -56,14 +56,12 @@ class Graph extends React.Component {
 						height={90}
 						interval={0}
 					/>
-					{this.props.percentage ? (
+					{this.props.name == "Rt" ? (
+						<YAxis type="number" domain={[-0.5, 2.5]} allowDataOverflow={true} />
+					) : this.props.percentage ? (
 						<YAxis unit="%" />
 					) : this.props.scale == "Lineare" ? (
-						this.props.name == "Rt" ? (
-							<YAxis type="number" domain={[-0.5, 2.5]} allowDataOverflow={true} />
-						) : (
-							<YAxis />
-						)
+						<YAxis />
 					) : (
 						<YAxis
 							scale="log"

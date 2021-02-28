@@ -16,7 +16,7 @@ imported into:
 	- Header
 	
 dependences:
-	- GraphIcon, TableIcon, HomeIcon, ItalyIcon, Null (static images)
+	- GraphIcon, TableIcon, HomeIcon, ItalyIcon, PeopleIcon, What (static images)
 	
 */
 
@@ -25,7 +25,8 @@ import TableIcon from "../images/table.svg";
 import HomeIcon from "../images/home.svg";
 import ItalyIcon from "../images/Italy.svg";
 import RefsIcon from "../images/references.svg";
-import Null from "../images/blank.svg";
+import PeopleIcon from "../images/people.svg";
+import What from "../images/what.svg";
 
 const get = (lastQuery, defaultQueryParams) => {
 	return [
@@ -59,15 +60,15 @@ const get = (lastQuery, defaultQueryParams) => {
 		},
 		{
 			title: "Chi siamo (toDo)",
-			image: Null,
-			link: "/",
+			image: PeopleIcon,
+			link: "/aboutUs",
 			code: "us",
 			inMainPage: true
 		},
 		{
 			title: "Cosa posso vedere? (toDo)",
-			image: Null,
-			link: "/",
+			image: What,
+			link: "/what",
 			code: "what",
 			inMainPage: true
 		},

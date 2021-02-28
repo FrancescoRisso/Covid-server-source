@@ -17,7 +17,7 @@ imported into:
 	- Page
 	- App
 	- FirstPage
-	- References
+	- DiscursivePage
 	
 dependences:
 	- Link (from react-router-dom)

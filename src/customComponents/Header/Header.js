@@ -18,7 +18,7 @@ functions:
 imported into:
 	- Page
 	- App
-	- FirstPage
+	- DiscursivePage
 
 dependences:
 	- HeaderContent
@@ -35,7 +35,7 @@ class Header extends React.Component {
 
 	render() {
 		return (
-			<div className="col-12">
+			<div className="col-12 pt-3 mb-0 align-items-start">
 				<HeaderContent
 					big={true}
 					toggleSidebar={this.props.toggleSidebar}

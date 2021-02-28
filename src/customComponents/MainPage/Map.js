@@ -44,23 +44,37 @@ class Map extends React.Component {
 			mouseX: 0,
 			mouseY: 0,
 			dx: 0,
+			dy: 0,
 			positivesPercentages: []
 		};
 	}
+
+	updateDimensions = () => {
+		const delta = document.getElementById("map-div").getBoundingClientRect();
+		this.setState({ dx: delta.left <= 30 ? 15 : delta.left });
+	};
 
 	componentDidUpdate(lastProps) {
 		if (
 			lastProps.sidebarVisible != this.props.sidebarVisible ||
 			lastProps.mainMenuVisible != this.props.mainMenuVisible
 		) {
-			const delta = document.getElementById("map-div").getBoundingClientRect();
-			this.setState({ dx: delta.left <= 30 ? 15 : delta.left });
+			this.updateDimensions();
 		}
 	}
 
+	componentWillUnmount() {
+		window.removeEventListener("resize", this.updateDimensions);
+	}
+
 	componentDidMount() {
-		const delta = document.getElementById("map-div").getBoundingClientRect();
-		this.setState({ dx: delta.left <= 30 ? 15 : delta.left });
+		this.updateDimensions();
+
+		window.addEventListener("resize", this.updateDimensions);
+		window.addEventListener("scroll", (e) => {
+			//console.log(document.getElementById("map-div").scrollHeight);
+			this.setState({ dy: window.scrollY });
+		});
 
 		const cssFile = document.styleSheets[1];
 
@@ -94,7 +108,6 @@ class Map extends React.Component {
 			<div className="mt-3">
 				<div
 					id="map-div"
-					className="vheight-100"
 					onMouseMove={(event) => {
 						this.setState({ mouseX: event.clientX, mouseY: event.clientY });
 					}}
@@ -122,7 +135,7 @@ class Map extends React.Component {
 					className={this.state.selected != "" ? "border rounded red-outline d-block white-color" : "d-none"}
 					style={{
 						position: "absolute",
-						top: this.state.mouseY - 130,
+						top: this.state.mouseY - 130 + this.state.dy,
 						left: this.state.mouseX - this.state.dx,
 						transform: `translateX(-50%)`
 					}}

@@ -5,7 +5,6 @@ import mysql.connector
 from date import get_date
 import numpy as np
 from scipy import stats
-from TikhonovRegression import *
 
 ##
 #   Disable default flask logger
@@ -20,7 +19,7 @@ log.setLevel(logging.ERROR)
 #
 
 
-def getParamFromQuery(param, fromDate, toDate, table, perc):
+def getParamFromQuery(param, fromDate, toDate, table, perc, smooth):
     query = f"SELECT Data, Regione, {param} FROM {table}"
     if fromDate and toDate:
         query = f"{query} WHERE Data >= '{fromDate}' AND Data <= '{toDate}'"
@@ -38,7 +37,7 @@ def getParamFromQuery(param, fromDate, toDate, table, perc):
     thisDate = {
         "data": date.strftime("%Y-%m-%d")
     }
-    if table == "VARIATION":
+    if table == "VARIAZIONE":
         thisDate["zero"] = 0
     paramReturn = []
 
@@ -63,10 +62,11 @@ def getParamFromQuery(param, fromDate, toDate, table, perc):
                     "data": date.strftime("%Y-%m-%d"),
                     result[i][1]: result[i][2]
                 }
-            thisDate["zero"] = 0
+            if table == "VARIAZIONE":
+                thisDate["zero"] = 0
 
     paramReturn.append(thisDate)
-    return paramReturn
+    return smoothGraph(paramReturn) if smooth else paramReturn
 
 
 ##
@@ -122,96 +122,96 @@ directReturn = [
     {
         "name": "Ricoverati con sintomi",
         "db": "Ricoverati_con_sintomi",
-        "alwaysPercentage": False,
-        "description": "Il numero di persone ricoverate in ospedale (in terapia intensiva o altro) che sono positive e hanno sintomi covid",
-                "short_desc": "di persone positive ricoverate con sintomi"
+                "alwaysPercentage": False,
+                "description": "Il numero di persone ricoverate in ospedale, che siano in terapia intensiva o no, che sono positive e hanno sintomi covid",
+        "short_desc": "di persone positive ricoverate con sintomi"
     }, {
         "name": "Persone in terapia intensiva",
         "db": "Terapia_intensiva",
         "alwaysPercentage": False,
-        "description": "Il numero di persone positive ricoverate in terapia intensiva",
-                "short_desc": "di persone in terapia intensiva"
+                "description": "Il numero di persone positive ricoverate in terapia intensiva",
+        "short_desc": "di persone in terapia intensiva"
     }, {
         "name": "Persone ospedalizzate",
         "db": "Ospedalizzati",
         "alwaysPercentage": False,
-        "description": "Il numero di persone positive ricoverate in ospedale (in terapia intensiva o altro) che sono positivi, con o senza sintomi covid",
-                "short_desc": "di persone positive ricoverate"
+                "description": "Il numero di persone positive ricoverate in ospedale, che siano in terapia intensiva o no, con o senza sintomi covid",
+        "short_desc": "di persone positive ricoverate"
     }, {
         "name": "Persone in isolamento domiciliare",
         "db": "Isolamento_domiciliare",
         "alwaysPercentage": False,
-        "description": "Il numero di persone positive ma non gravi, che quindi devono restare isolate per non trasmettere il virus, ma non necessitano dell'ospedale",
-                "short_desc": "di persone positive in isolamento"
+                "description": "Il numero di persone positive ma non gravi, che quindi devono restare isolate per non trasmettere il virus, ma non necessitano di essere ricoverate in ospedale",
+        "short_desc": "di persone positive in isolamento"
     }, {
         "name": "Persone positive",
         "db": "Positivi",
         "alwaysPercentage": False,
-        "description": "Il numero di persone che le ASL sanno essere positive (quindi quelle che hanno avuto un tampone positivo, e non sono ancora state dichiarate guarite). Attenzione, potrebbe essere molto diverso dal numero reale di persone positive",
-                "short_desc": "di persone positive"
+                "description": "Il numero di persone che le ASL sanno essere positive: quelle che hanno avuto un tampone positivo, e non sono ancora state dichiarate guarite. Attenzione, questo dato potrebbe non rispecchiare il numero reale di persone attualmente positive",
+        "short_desc": "di persone positive"
     }, {
         "name": "Nuovi positivi scoperti",
         "db": "Nuovi_positivi",
         "alwaysPercentage": False,
-        "description": "Il numero di persone risultate positive al tampone",
-                "short_desc": "di persone risultate positive al tampone"
+                "description": "Il numero di persone risultate positive al tampone",
+        "short_desc": "di persone risultate positive al tampone"
     }, {
         "name": "Persone guarite dimesse",
         "db": "Dimessi_guariti",
         "alwaysPercentage": False,
-        "description": "Il numero di persone guarite e dimesse dall'ospedale",
-                "short_desc": "di persone guarite e dimesse"
+                "description": "Il numero di persone guarite e dimesse dall'ospedale",
+        "short_desc": "di persone guarite e dimesse"
     }, {
         "name": "Persone decedute",
         "db": "Deceduti",
         "alwaysPercentage": False,
-                "description": "Il numero di persone che sono decedute",
-                "short_desc": "di morti"
+        "description": "Il numero di persone che sono decedute",
+        "short_desc": "di morti"
     }, {
         "name": "Tamponi totali effettuati",
         "db": "Tamponi",
         "alwaysPercentage": False,
-        "description": "Il numero di tamponi effettuati: include i \"Primi tamponi\" e i tamponi di controllo",
-                "short_desc": "di tamponi totali effettuati"
+                "description": "Il numero di tamponi effettuati: include i \"Primi tamponi\" e i tamponi di controllo",
+        "short_desc": "di tamponi totali effettuati"
     }, {
         "name": "Tamponi su persone non note positive",
         "db": "Casi_testati",
         "alwaysPercentage": False,
-        "description": "Il numero di \"Primi tamponi\" effettuati, cioè il numero di tamponi non di controllo effettuati",
-                "short_desc": "di \"Primi tamponi\""
+                "description": "Il numero di \"Primi tamponi\" effettuati, cioè il numero di tamponi non di controllo effettuati",
+        "short_desc": "di \"Primi tamponi\""
     }, {
         "name": "Rt",
         "db": "Rt",
         "alwaysPercentage": False,
-        "description": "L'inidce di contagio, che indica quante persone infetta in media un contagiato"
+                "description": "L'inidce di contagio, che indica quante persone infetta in media un contagiato"
     }
 ]
 calcReturn = [
     {
         "name": "Percentuale di tamponi positivi",
         "db": "Perc_tamp_pos",
-        "alwaysPercentage": True,
-        "description": "Quanti tamponi fatti sono risultati positivi?"
+                "alwaysPercentage": True,
+                "description": "Quanti tamponi fatti sono risultati positivi"
     }, {
         "name": "Percentuale di positivi deceduti",
         "db": "Perc_pos_dec",
         "alwaysPercentage": True,
-        "description": "Quante persone che sono state testate positive sono morte?"
+                "description": "Quante persone che sono state testate positive sono morte"
     }, {
         "name": "Percentuale di positivi ospedalizzati",
         "db": "Perc_pos_osp",
         "alwaysPercentage": True,
-        "description": "Quante persone che sono state testate positive sono state ricoverate in ospedale?"
+                "description": "Quante persone che sono state testate positive sono state ricoverate in ospedale"
     }, {
         "name": "Percentuale di ospedalizzati in terapia intensiva",
         "db": "Perc_osp_intens",
         "alwaysPercentage": True,
-        "description": "Quante persone che sono ricoverate in ospedale sono in terapia intensiva?"
+                "description": "Quante persone che sono ricoverate in ospedale sono in terapia intensiva"
     }, {
         "name": "Percentuale di positivi non ospedalizzati",
         "db": "Perc_pos_isolam",
         "alwaysPercentage": True,
-        "description": "Quante persone che sono positive non necessitano di essere ricoverate in ospedale?"
+                "description": "Quante persone che sono positive non necessitano di essere ricoverate in ospedale"
     }
 ]
 allReturn = directReturn + calcReturn
@@ -224,20 +224,23 @@ calcReturnKeys = list(map(getNameOfObj, calcReturn))
 #   All the functions to calculate the values of calcReturn
 #
 
-def Perc_tamp_pos(fromDate, toDate, table, tamponi, positivi):
+def Perc_tamp_pos(fromDate, toDate, table, smooth, tamponi, positivi):
     tamponi = tamponi if tamponi else getParamFromQuery(
-        "Casi_testati", fromDate, toDate, "STORICO", False)
+        "Casi_testati", fromDate, toDate, "STORICO", False, False)
     positivi = positivi if positivi else getParamFromQuery(
-        "Nuovi_positivi", fromDate, toDate, "STORICO", False)
+        "Nuovi_positivi", fromDate, toDate, "STORICO", False, False)
     if table == "VARIAZIONE":
-        result = Perc_tamp_pos(fromDate, toDate, "STORICO", tamponi, positivi)
+        result = Perc_tamp_pos(
+            fromDate, toDate, "STORICO", False, tamponi, positivi)
         for i in range(len(result)-1, 0, -1):
             for region in result[i].keys():
                 if region != "data" and region != "zero":
                     result[i][region] = result[i][region] - result[i-1][region]
+            result[i]["zero"] = 0
         for region in result[0].keys():
             if region != "data" and region != "zero":
                 result[0][region] = 0
+        result[0]["zero"] = 0
     else:
         result = []
         for i in range(len(tamponi)):
@@ -247,23 +250,26 @@ def Perc_tamp_pos(fromDate, toDate, table, tamponi, positivi):
                     dateItem[region] = 100 * positivi[i][region] / \
                         tamponi[i][region] if tamponi[i][region] != 0 else 0
             result.append(dateItem)
-    return result
+    return smoothGraph(result) if smooth else result
 
 
-def Perc_pos_dec(fromDate, toDate, table, deceduti, positivi):
+def Perc_pos_dec(fromDate, toDate, table, smooth, deceduti, positivi):
     deceduti = deceduti if deceduti else getParamFromQuery(
-        "Deceduti", fromDate, toDate, "STORICO", False)
+        "Deceduti", fromDate, toDate, "STORICO", False, False)
     positivi = positivi if positivi else getParamFromQuery(
-        "Positivi", fromDate, toDate, "STORICO", False)
+        "Positivi", fromDate, toDate, "STORICO", False, False)
     if table == "VARIAZIONE":
-        result = Perc_pos_dec(fromDate, toDate, "STORICO", deceduti, positivi)
+        result = Perc_pos_dec(fromDate, toDate, "STORICO",
+                              False, deceduti, positivi)
         for i in range(len(result)-1, 0, -1):
             for region in result[i].keys():
                 if region != "data" and region != "zero":
                     result[i][region] = result[i][region] - result[i-1][region]
+            result[i]["zero"] = 0
         for region in result[0].keys():
             if region != "data" and region != "zero":
                 result[0][region] = 0
+        result[0]["zero"] = 0
     else:
         result = []
         for i in range(len(deceduti)):
@@ -273,24 +279,26 @@ def Perc_pos_dec(fromDate, toDate, table, deceduti, positivi):
                     dateItem[region] = 100 * deceduti[i][region] / \
                         positivi[i][region] if positivi[i][region] != 0 else 0
             result.append(dateItem)
-    return result
+    return smoothGraph(result) if smooth else result
 
 
-def Perc_pos_osp(fromDate, toDate, table, ospedalizzati, positivi):
+def Perc_pos_osp(fromDate, toDate, table, smooth, ospedalizzati, positivi):
     ospedalizzati = ospedalizzati if ospedalizzati else getParamFromQuery(
-        "Ospedalizzati", fromDate, toDate, "STORICO", False)
+        "Ospedalizzati", fromDate, toDate, "STORICO", False, False)
     positivi = positivi if positivi else getParamFromQuery(
-        "Positivi", fromDate, toDate, "STORICO", False)
+        "Positivi", fromDate, toDate, "STORICO", False, False)
     if table == "VARIAZIONE":
         result = Perc_pos_osp(fromDate, toDate, "STORICO",
-                              ospedalizzati, positivi)
+                              False, ospedalizzati, positivi)
         for i in range(len(result)-1, 0, -1):
             for region in result[i].keys():
                 if region != "data" and region != "zero":
                     result[i][region] = result[i][region] - result[i-1][region]
+            result[i]["zero"] = 0
         for region in result[0].keys():
             if region != "data" and region != "zero":
                 result[0][region] = 0
+        result[0]["zero"] = 0
     else:
         result = []
         for i in range(len(ospedalizzati)):
@@ -300,24 +308,26 @@ def Perc_pos_osp(fromDate, toDate, table, ospedalizzati, positivi):
                     dateItem[region] = 100 * ospedalizzati[i][region] / \
                         positivi[i][region] if positivi[i][region] != 0 else 0
             result.append(dateItem)
-    return result
+    return smoothGraph(result) if smooth else result
 
 
-def Perc_pos_intens(fromDate, toDate, table, ospedalizzati, terapia_intensiva):
+def Perc_pos_intens(fromDate, toDate, table, smooth, ospedalizzati, terapia_intensiva):
     ospedalizzati = ospedalizzati if ospedalizzati else getParamFromQuery(
-        "Ospedalizzati", fromDate, toDate, "STORICO", False)
+        "Ospedalizzati", fromDate, toDate, "STORICO", False, False)
     terapia_intensiva = terapia_intensiva if terapia_intensiva else getParamFromQuery(
-        "Terapia_intensiva", fromDate, toDate, "STORICO", False)
+        "Terapia_intensiva", fromDate, toDate, "STORICO", False, False)
     if table == "VARIAZIONE":
         result = Perc_pos_intens(
-            fromDate, toDate, "STORICO", ospedalizzati, terapia_intensiva)
+            fromDate, toDate, "STORICO", False, ospedalizzati, terapia_intensiva)
         for i in range(len(result)-1, 0, -1):
             for region in result[i].keys():
                 if region != "data" and region != "zero":
                     result[i][region] = result[i][region] - result[i-1][region]
+            result[i]["zero"] = 0
         for region in result[0].keys():
             if region != "data" and region != "zero":
                 result[0][region] = 0
+        result[0]["zero"] = 0
     else:
         result = []
         for i in range(len(ospedalizzati)):
@@ -327,24 +337,26 @@ def Perc_pos_intens(fromDate, toDate, table, ospedalizzati, terapia_intensiva):
                     dateItem[region] = 100 * terapia_intensiva[i][region] / \
                         ospedalizzati[i][region] if ospedalizzati[i][region] != 0 else 0
             result.append(dateItem)
-    return result
+    return smoothGraph(result) if smooth else result
 
 
-def Perc_pos_isolam(fromDate, toDate, table, positivi, isolamento):
+def Perc_pos_isolam(fromDate, toDate, table, smooth, positivi, isolamento):
     positivi = positivi if positivi else getParamFromQuery(
-        "positivi", fromDate, toDate, "STORICO", False)
+        "positivi", fromDate, toDate, "STORICO", False, False)
     isolamento = isolamento if isolamento else getParamFromQuery(
-        "Isolamento_domiciliare", fromDate, toDate, "STORICO", False)
+        "Isolamento_domiciliare", fromDate, toDate, "STORICO", False, False)
     if table == "VARIAZIONE":
         result = Perc_pos_isolam(
-            fromDate, toDate, "STORICO", positivi, isolamento)
+            fromDate, toDate, "STORICO", False, positivi, isolamento)
         for i in range(len(result)-1, 0, -1):
             for region in result[i].keys():
                 if region != "data" and region != "zero":
                     result[i][region] = result[i][region] - result[i-1][region]
+            result[i]["zero"] = 0
         for region in result[0].keys():
             if region != "data" and region != "zero":
                 result[0][region] = 0
+        result[0]["zero"] = 0
     else:
         result = []
         for i in range(len(positivi)):
@@ -354,10 +366,8 @@ def Perc_pos_isolam(fromDate, toDate, table, positivi, isolamento):
                     dateItem[region] = 100 * isolamento[i][region] / \
                         positivi[i][region] if positivi[i][region] != 0 else 0
             result.append(dateItem)
-    return result
+    return smoothGraph(result) if smooth else result
 
-
-def smooth_data(y, X, L, alpha):
     tic = Tikhonov(alpha=alpha)
     tic.fit(y=y, X=X, L=L)
     return tic.predict(X)
@@ -370,12 +380,9 @@ def smooth_differentiate(y, X, L, alpha):
 
 
 def Rt(fromDate, toDate, positivi, smooth):
-    positivi = positivi.copy() if positivi else smoothData(getParamFromQuery(
-        "Nuovi_positivi", fromDate, toDate, "STORICO", False)) if smooth else getParamFromQuery(
-        "Nuovi_positivi", fromDate, toDate, "STORICO", False)
+    positivi = positivi.copy() if positivi else getParamFromQuery(
+        "Nuovi_positivi", fromDate, toDate, "STORICO", False, False)
     # Naming format comes from the formula found here: https://github.com/tomorrowdata/COVID-19/blob/main/notebooks/Rt_on_italian_national_data.ipynb
-
-    positivi = smoothData(positivi) if smooth else positivi
 
     result = []
 
@@ -387,20 +394,21 @@ def Rt(fromDate, toDate, positivi, smooth):
             if region == "data":
                 thisDate["data"] = positivi[t][region]
                 thisDate["soglia"] = 1
-            else:
+            elif region != "zero":
                 sum = 0
                 for s in range(1, t):
-                    sum += positivi[t-s][region] * w[s]
-                val = positivi[t][region]/sum
+                    sum += (positivi[t-s][region] * w[s]
+                            if positivi[t-s][region] else 0)
+                val = 0 if (
+                    sum == 0 or not positivi[t][region]) else positivi[t][region]/sum
                 thisDate[region] = None if np.isnan(
                     val) or np.isinf(val) else val
         result.append(thisDate)
-    return result
+    return smoothGraph(result) if smooth else result
 
-
-def smoothData(data):
     X = np.tri(len(data), len(data), 0)
-    mat = np.eye(len(data), len(data))-(np.tri(len(data), len(data), -1) - np.tri(len(data), len(data), -2))
+    mat = np.eye(len(data), len(data))-(np.tri(len(data),
+                                               len(data), -1) - np.tri(len(data), len(data), -2))
     GAMMA = np.dot(mat, mat)
 
     newdata = []
@@ -416,6 +424,39 @@ def smoothData(data):
             for i in range(len(data)):
                 newdata[i][region] = thisRegion[i]
     return newdata
+
+
+def smoothGraph(data):
+    newdata = []
+    for date in data:
+        newdata.append({"data": date["data"]})
+        if "zero" in data[0].keys():
+            newdata[len(newdata)-1]["zero"] = 0
+        if "one" in data[0].keys():
+            newdata[len(newdata)-1]["one"] = 1
+
+    for region in data[0]:
+        if region not in ["data", "zero", "one"]:
+            thisRegion = []
+            for date in data:
+                thisRegion.append(date[region])
+            thisRegion = smoothRegion(thisRegion)
+            for i in range(len(data)):
+                newdata[i][region] = thisRegion[i]
+    return newdata
+
+
+def smoothRegion(data):
+    ALPHA = 0.1
+    s = [data[0]]
+    for i in range(1, len(data)):
+        if data[i] == None:
+            s.append(None)
+        else:
+            s.append(data[i]*ALPHA + (1-ALPHA)*s[i-1]
+                     ) if s[i-1] != None else s.append(0)
+        # s.append(data[i]*ALPHA + (1-ALPHA)*s[i-1])
+    return s
 
 
 ##
@@ -571,7 +612,7 @@ def values():
                 smooth = False
         else:
             smooth = False
-        
+
         print(f"{get_date()} Serving the fields {params} from table {table}{' as percentage' if perc else ''}{' smoothed' if smooth else ''}")
         resultObj = {}
 
@@ -586,56 +627,53 @@ def values():
             else:
                 if param in directReturnKeys:
                     resultObj[param] = getParamFromQuery(
-                        param, fromDate, toDate, table, perc)
+                        param, fromDate, toDate, table, perc, smooth)
 
                 elif param == "Perc_tamp_pos":
-                    if perc or table == "VARIAZIONE":
+                    if perc or smooth or table == "VARIAZIONE":
                         resultObj[param] = Perc_tamp_pos(
-                            fromDate, toDate, table, None, None)
+                            fromDate, toDate, table, smooth, None, None)
                     else:
-                        resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, resultObj.get(
+                        resultObj[param] = Perc_tamp_pos(fromDate, toDate, table, smooth, resultObj.get(
                             "Casi_testati"), resultObj.get("Nuovi_positivi"))
 
                 elif param == "Perc_pos_dec":
-                    if perc or table == "VARIAZIONE":
+                    if perc or smooth or table == "VARIAZIONE":
                         resultObj[param] = Perc_pos_dec(
-                            fromDate, toDate, table, None, None)
+                            fromDate, toDate, table, smooth, None, None)
                     else:
-                        resultObj[param] = Perc_pos_dec(fromDate, toDate, table, resultObj.get(
+                        resultObj[param] = Perc_pos_dec(fromDate, toDate, table, smooth, resultObj.get(
                             "Deceduti"), resultObj.get("Positivi"))
 
                 elif param == "Perc_pos_osp":
-                    if perc or table == "VARIAZIONE":
+                    if perc or smooth or table == "VARIAZIONE":
                         resultObj[param] = Perc_pos_osp(
-                            fromDate, toDate, table, None, None)
+                            fromDate, toDate, table, smooth, None, None)
                     else:
-                        resultObj[param] = Perc_pos_osp(fromDate, toDate, table, resultObj.get(
+                        resultObj[param] = Perc_pos_osp(fromDate, toDate, table, smooth, resultObj.get(
                             "Ospedalizzati"), resultObj.get("Positivi"))
 
                 elif param == "Perc_osp_intens":
-                    if perc or table == "VARIAZIONE":
+                    if perc or smooth or table == "VARIAZIONE":
                         resultObj[param] = Perc_pos_intens(
-                            fromDate, toDate, table, None, None)
+                            fromDate, toDate, table, smooth, None, None)
                     else:
-                        resultObj[param] = Perc_pos_intens(fromDate, toDate, table, resultObj.get(
+                        resultObj[param] = Perc_pos_intens(fromDate, toDate, table, smooth, resultObj.get(
                             "Ospedalizzati"), resultObj.get("Terapia_intensiva"))
 
                 elif param == "Perc_pos_isolam":
-                    if perc or table == "VARIAZIONE":
+                    if perc or smooth or table == "VARIAZIONE":
                         resultObj[param] = Perc_pos_isolam(
-                            fromDate, toDate, table, None, None)
+                            fromDate, toDate, table, smooth, None, None)
                     else:
-                        resultObj[param] = Perc_pos_isolam(fromDate, toDate, table, resultObj.get(
+                        resultObj[param] = Perc_pos_isolam(fromDate, toDate, table, smooth, resultObj.get(
                             "Positivi"), resultObj.get("Isolamento_domiciliare"))
-
-                if smooth:
-                    resultObj[param] = smoothData(resultObj[param])
 
         return resultObj
 
     except Exception as e:
         print(f"Error: {e}")
-        return "error"
+        return {"error": "error"}, 500
 
 
 if __name__ == "__main__":

@@ -16,6 +16,7 @@ functions:
 	- isGraphdataLoaded: if data contains a map/graph query result
 	- linesList[]: the list of the graph lines, including info about each one's color and visibility
 	- defaultGraphs[]: the names of the graphs shown by default
+	- error: if the return of the api function is erroneous
 
 	- toggleSidebar(): inverts the visibility of the sidebar
 	- changeLinesList(edit): ovverrides linesList with edit
@@ -32,20 +33,19 @@ dependences:
 	- Page
 	- Header
 	- NavMenu
-	- FirstPage
-	- References
+	- DiscursivePage
 
 */
 
 import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 import "./App.css";
 import * as Api from "./api.js";
 import Page from "./customComponents/Page";
 import Header from "./customComponents/Header/Header";
 import NavMenu from "./customComponents/NavMenu";
-import FirstPage from "./customComponents/discoursivePages/FirstPage/FirstPage";
-import References from "./customComponents/discoursivePages/References/References";
+import FirstPage from "./customComponents/discursivePages/FirstPage";
+import DiscursivePage from "./customComponents/discursivePages/DiscursivePage";
 
 class App extends React.Component {
 	constructor(props) {
@@ -63,6 +63,7 @@ class App extends React.Component {
 	isDbLoaded = false;
 	isGraphdataLoaded = false;
 	linesList = [];
+	error = false;
 
 	render() {
 		if (this.allGraphs.length == 0) {
@@ -77,21 +78,35 @@ class App extends React.Component {
 		} else
 			return (
 				<Router>
-					<div className="App container-fluid px-xl-3 vheight-100">
+					<div className="App container-fluid px-0 px-sm-3 px-xl-3 vheight-100">
 						<Switch>
-							<Route exact path="/">
-								<FirstPage
-									toggleSidebar={this.toggleSidebar}
-									sidebarVisible={this.state.sidebarVisible}
-									lastQuery={this.lastQuery}
-									defaultQueryParams={this.defaultQueryParams}
-								/>
-							</Route>
+							<Route
+								exact
+								path="/"
+								render={() => {
+									document.body.style.backgroundColor = "#f5c6cb";
+									return (
+										<div className="vheight-100 pinky-bg rounded">
+											<FirstPage
+												toggleSidebar={this.toggleSidebar}
+												sidebarVisible={this.state.sidebarVisible}
+												lastQuery={this.lastQuery}
+												defaultQueryParams={this.defaultQueryParams}
+											/>
+										</div>
+									);
+								}}
+							/>
 							<Route
 								path="/graph/p/:percentage/v/:variation/g/:graphnum/fd/:fromDate/td/:toDate/s/:smooth/l/:logScale"
 								render={({ match }) => {
+									document.body.style.backgroundColor = "#ffffff";
 									const params = match.params;
 									const thisQuery = `/p/${params.percentage}/v/${params.variation}/g/${params.graphnum}/fd/${params.fromDate}/td/${params.toDate}/s/${params.smooth}/l/${params.logScale}`;
+									if (this.error) {
+										this.error = false;
+										return <Redirect push={true} to="/ServerError" />;
+									}
 									if (
 										thisQuery.slice(0, -4) != this.lastQuery.slice(0, -4) ||
 										!this.isGraphdataLoaded
@@ -105,14 +120,21 @@ class App extends React.Component {
 											params.variation == "1" ? "VARIAZIONE" : "STORICO",
 											params.percentage == "1",
 											params.smooth == "1"
-										).then((result) => {
-											this.data = result;
-											if (this.linesList.length == 0) this.linesList = this.getLinesList(result);
-											this.lastQuery = thisQuery;
-											this.isGraphdataLoaded = true;
-											this.isDbLoaded = false;
-											this.forceUpdate();
-										});
+										)
+											.then((result) => {
+												this.data = result;
+												if (this.linesList.length == 0)
+													this.linesList = this.getLinesList(result);
+												this.lastQuery = thisQuery;
+												this.isGraphdataLoaded = true;
+												this.isDbLoaded = false;
+												this.error = false;
+												this.forceUpdate();
+											})
+											.catch((e) => {
+												this.error = true;
+												this.forceUpdate();
+											});
 										return <Page loading={true} />;
 									}
 									return (
@@ -147,6 +169,7 @@ class App extends React.Component {
 							<Route
 								path="/map/p/:percentage/v/:variation/g/:graphnum/fd/:fromDate/td/:toDate/s/:smooth/l/:logScale"
 								render={({ match }) => {
+									document.body.style.backgroundColor = "#f5c6cb";
 									const params = match.params;
 									const thisQuery = `/p/${params.percentage}/v/${params.variation}/g/${params.graphnum}/fd/${params.fromDate}/td/${params.toDate}/s/${params.smooth}/l/${params.logScale}`;
 									if (
@@ -169,39 +192,42 @@ class App extends React.Component {
 											this.isDbLoaded = false;
 											this.forceUpdate();
 										});
-										return <Page loading={true} />;
+										return <Page loading={true} selectedMode="map" />;
 									}
 									return (
-										<Page
-											currentSettings={{
-												graphs: this.graphsNumToNames(params.graphnum, this.allGraphs),
-												startDate: params.fromDate,
-												endDate:
-													params.toDate == "auto"
-														? new Date(Date.now()).toISOString().substr(0, 10)
-														: params.toDate,
-												variation: params.variation == "1",
-												percentage: params.percentage == "1"
-											}}
-											graphsNamesToNum={this.graphsNamesToNum}
-											loading={false}
-											selectedMode="map"
-											lastQuery={this.lastQuery}
-											currentScale={params.logScale == "1" ? "Logaritmica" : "Lineare"}
-											linesList={this.linesList}
-											changeLinesList={this.changeLinesList}
-											allGraphs={this.allGraphs}
-											data={this.data}
-											defaultQueryParams={this.defaultQueryParams}
-											toggleSidebar={() => {}}
-											sidebarVisible={false}
-										/>
+										<div className="vheight-100 pinky-bg rounded">
+											<Page
+												currentSettings={{
+													graphs: this.graphsNumToNames(params.graphnum, this.allGraphs),
+													startDate: params.fromDate,
+													endDate:
+														params.toDate == "auto"
+															? new Date(Date.now()).toISOString().substr(0, 10)
+															: params.toDate,
+													variation: params.variation == "1",
+													percentage: params.percentage == "1"
+												}}
+												graphsNamesToNum={this.graphsNamesToNum}
+												loading={false}
+												selectedMode="map"
+												lastQuery={this.lastQuery}
+												currentScale={params.logScale == "1" ? "Logaritmica" : "Lineare"}
+												linesList={this.linesList}
+												changeLinesList={this.changeLinesList}
+												allGraphs={this.allGraphs}
+												data={this.data}
+												defaultQueryParams={this.defaultQueryParams}
+												toggleSidebar={() => {}}
+												sidebarVisible={false}
+											/>
+										</div>
 									);
 								}}
 							/>
 							<Route
 								path="/raw"
 								render={() => {
+									document.body.style.backgroundColor = "#ffffff";
 									if (!this.isDbLoaded) {
 										this.data = this.falseData;
 										Api.getRawData().then((result) => {
@@ -226,24 +252,19 @@ class App extends React.Component {
 									);
 								}}
 							/>
-							<Route path="/refs">
-								<References lastQuery={this.lastQuery} defaultQueryParams={this.defaultQueryParams} />
-							</Route>
-							<Route>
-								<Header
-									selectedMode={""}
-									toggleSidebar={this.toggleSidebar}
-									sidebarVisible={this.state.sidebarVisible}
-									lastQuery={this.lastQuery}
-									defaultQueryParams={this.defaultQueryParams}
-								/>
-								<p className="mt-2">Errore: pagina non trovata</p>
-								<NavMenu
-									selectedMode=""
-									lastQuery={this.lastQuery}
-									defaultQueryParams={this.defaultQueryParams}
-								/>
-							</Route>
+							<Route
+								render={({ location }) => {
+									document.body.style.backgroundColor = "#f5c6cb";
+									return (
+										<DiscursivePage
+											lastQuery={this.lastQuery}
+											defaultQueryParams={this.defaultQueryParams}
+											path={location.pathname}
+											graphsList={this.allGraphs}
+										/>
+									);
+								}}
+							/>
 						</Switch>
 					</div>
 				</Router>

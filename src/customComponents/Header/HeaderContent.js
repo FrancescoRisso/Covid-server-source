@@ -29,20 +29,20 @@ import React from "react";
 import pagesList from "../pagesList";
 
 class HeaderContent extends React.Component {
-	smallerPages = ["refs", "initial-page", "map"];
+	smallerPages = ["refs", "initial-page", "map", "us", "what", "err"];
 
 	render() {
 		let page = pagesList(this.props.lastQuery, this.props.defaultQueryParams).filter(
 			(x) => x.code == this.props.selectedMode
 		)[0];
-		if (page == null) page = []
+		if (page == null) page = [];
 
 		return (
 			<>
 				<div
 					className={
 						this.props.big
-							? "rounded red-bg mt-2 white-text p-2 align-items-center justify-content-center d-none d-md-flex"
+							? "rounded red-bg white-text p-2 align-items-center justify-content-center d-none d-md-flex"
 							: "col-12 align-items-center d-flex"
 					}
 				>
@@ -84,7 +84,30 @@ class HeaderContent extends React.Component {
 							</button>
 						</div>
 						<div className="d-flex d-sm-none">
-							<button className="btn btn-danger border mr-auto my-auto navbar-dark">
+							<button
+								className="btn btn-danger border mr-auto my-auto navbar-dark"
+								onClick={() => {
+									let sidebar = document.getElementById("main-menu");
+									let page = document.getElementById("main-page");
+									if (sidebar.classList.contains("d-block")) {
+										sidebar.classList.replace("d-block", "d-none");
+										if (this.props.selectedMode != "") page.className = "col-12";
+									} else {
+										if (this.props.selectedMode != "") {
+											if (this.smallerPages.indexOf(this.props.selectedMode) != -1) {
+												page.className = "col-12 col-sm-8 col-xl-9";
+												sidebar.className =
+													"d-block col-sm-4 col-xl-3 col-12 mt-3 bg-light border red-outline mb-auto pb-3";
+											} else {
+												page.className = "col-12 col-sm-8 col-xl-10";
+												sidebar.className =
+													"d-block col-sm-4 col-xl-2 col-12 mt-3 bg-light border red-outline mb-auto pb-3";
+											}
+										}
+									}
+									this.props.otherStuffToDo();
+								}}
+							>
 								<span className="navbar-toggler-icon"></span>
 							</button>
 						</div>

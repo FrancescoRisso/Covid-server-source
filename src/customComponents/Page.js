@@ -52,8 +52,8 @@ class Page extends React.Component {
 
 	render() {
 		return (
-			<div className={`${this.props.selectedMode == "map" ? "container" : "container-fluid ml-0 px-0"} `}>
-				<div className="row vheight-100">
+			<div className={`${this.props.selectedMode == "map" ? "container white-bg" : "container-fluid px-0 px-sm-3"} `}>
+				<div className="d-flex flex-column vheight-100 align-items-start">
 					<Header
 						selectedMode={this.props.selectedMode}
 						toggleSidebar={this.props.toggleSidebar}
@@ -73,7 +73,7 @@ class Page extends React.Component {
 					{this.props.loading ? (
 						<Loading />
 					) : (
-						<div className="col-12 px-xl-3">
+						<div className="col-12 px-xl-3 align-items-start">
 							<div className="row px-3">
 								<NavMenu
 									selectedMode={this.props.selectedMode}
@@ -89,7 +89,7 @@ class Page extends React.Component {
 											: () => {}
 									}
 								/>
-								<div className="col-12" id="main-page">
+								<div className="col-12 mt-0 mb-auto" id="main-page">
 									<div className="row">
 										{this.props.sidebarVisible ? (
 											<aside className="col-12 col-md-4 col-xl-3 d-md-block d-flex align-items-stretch mb-3 mb-sm-0">
@@ -100,14 +100,14 @@ class Page extends React.Component {
 													linesList={this.props.linesList}
 													changeLinesList={this.props.changeLinesList}
 													percentage={this.props.currentSettings.percentage}
-													variation={this.props.variation}
+													variation={this.props.currentSettings.variation}
 												/>
 											</aside>
 										) : (
 											""
 										)}
 										<span
-											className={this.props.sidebarVisible ? "col-xl-9 col-md-8 px-0" : "col-12"}
+											className={this.props.sidebarVisible ? "col-xl-9 col-md-8 px-0" : "col-12 px-0 px-sm-3"}
 										>
 											<MainPage
 												viewMode={this.props.selectedMode}

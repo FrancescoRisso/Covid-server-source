@@ -34,9 +34,9 @@ dependences:
 */
 
 import React from "react";
-import Header from "../../Header/Header";
-import NavMenu from "../../NavMenu";
-import pagesList from "../../pagesList";
+import Header from "../Header/Header";
+import NavMenu from "../NavMenu";
+import pagesList from "../pagesList";
 import FirstPageButton from "./FirstPageButton";
 
 class FirstPage extends React.Component {
@@ -91,7 +91,7 @@ class FirstPage extends React.Component {
 
 	render() {
 		return (
-			<div className="container">
+			<div className="container white-bg vheight-100">
 				<Header
 					toggleSidebar={this.props.toggleSidebar}
 					sidebarVisible={this.props.sidebarVisible}

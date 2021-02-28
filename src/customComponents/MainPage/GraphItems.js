@@ -126,7 +126,7 @@ class GraphItems extends React.Component {
 							: this.props.data[this.props.data.length - 1].Italia}
 						{this.graphSettings.alwaysPercentage
 							? "%"
-							: this.props.percentage
+							: this.props.percentage && this.props.graph_name != "Rt"
 							? "% della popolazione italiana"
 							: ""}
 						{this.props.variation ? " rispetto a ieri" : ""}.{" "}
