@@ -27,10 +27,10 @@ class WhatWeShow extends React.Component {
 	render() {
 		return (
 			<div className="left">
-				<p className="mt-4 ml-5">
+				<p className="mt-4 ml-sm-5 ml-3">
 					<b className="big">“Se torturi i numeri abbastanza a lungo, confesseranno qualsiasi cosa.”</b>
 					<br />
-					<i className="ml-5">~Gregg EasterBrook</i>
+					<i className="ml-sm-5 ml-3">~Gregg EasterBrook</i>
 				</p>
 				<p>
 					Probabilmente navigando in questo sito hai trovato un sacco di opzioni, ognuna delle quali ti mostra
@@ -41,7 +41,7 @@ class WhatWeShow extends React.Component {
 					Vediamo insieme il significato di ogni scelta.
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>Valori giornalieri o variazione giornaliera?</b>
 				</p>
 				<p>
@@ -53,7 +53,7 @@ class WhatWeShow extends React.Component {
 					zero, rappresentato con una linea rossa.
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>Dato numerico o percentuale?</b>
 				</p>
 				<p>
@@ -70,7 +70,7 @@ class WhatWeShow extends React.Component {
 					direttamente rispetto all'Italia, cosa impossibile se si visualizzano i dati numerici puri.
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>Grafico preciso o smussato?</b>
 				</p>
 				<p>
@@ -79,7 +79,7 @@ class WhatWeShow extends React.Component {
 					qualitativamente l'andamento, senza preoccuparti che i valori siano precisi nel dettaglio).
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>Scala lineare o logaritmica?</b>
 				</p>
 				<p>
@@ -91,7 +91,7 @@ class WhatWeShow extends React.Component {
 					piccoli, che spesso sono più interessanti.
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>E quali grafici posso vedere?</b>
 				</p>
 				<p>

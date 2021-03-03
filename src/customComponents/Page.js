@@ -52,7 +52,7 @@ class Page extends React.Component {
 
 	render() {
 		return (
-			<div className={`${this.props.selectedMode == "map" ? "container white-bg" : "container-fluid px-0 px-sm-3"} `}>
+			<div className={`${this.props.selectedMode == "map" ? "container white-bg px-0 px-sm-3" : "container-fluid px-0 px-sm-3"} `}>
 				<div className="d-flex flex-column vheight-100 align-items-start">
 					<Header
 						selectedMode={this.props.selectedMode}

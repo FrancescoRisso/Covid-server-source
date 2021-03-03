@@ -16,6 +16,7 @@ dependences:
 	- Header
 	- NavMenu
 	- ImgProtezioneCivile, ImgRtFormula, ImgCode (static images)
+	- Link (from react-router-dom)
 	
 */
 
@@ -23,6 +24,7 @@ import React from "react";
 import ImgProtezioneCivile from "../../images/protezioneCivile.svg";
 import ImgRtFormula from "../../images/rtFormula.svg";
 import ImgCode from "../../images/code.svg";
+import { Link } from "react-router-dom";
 
 class References extends React.Component {
 	constructor(props) {
@@ -51,6 +53,11 @@ class References extends React.Component {
 						<p>
 							Sono poi elaborati da noi per poter mostrare alcuni dati non direttamente forniti dalla
 							Protezione Civile, ma calcolabili a partire da quelli (come per esempio i vari confronti).
+						</p>
+						<p>
+							Alcuni giorni i dati erano palesemente errati. Se questo errore rendeva il grafico
+							insensato, abbiamo deciso di modificarli per migliorare la visione del grafico.{" "}
+							<Link to="/modifiedData">Qui</Link> c'è l'elenco di tutti i dati che abbiamo modificato
 						</p>
 					</span>
 				</div>

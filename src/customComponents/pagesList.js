@@ -59,14 +59,14 @@ const get = (lastQuery, defaultQueryParams) => {
 			inMainPage: true
 		},
 		{
-			title: "Chi siamo (toDo)",
+			title: "Chi siamo",
 			image: PeopleIcon,
 			link: "/aboutUs",
 			code: "us",
 			inMainPage: true
 		},
 		{
-			title: "Cosa posso vedere? (toDo)",
+			title: "Cosa posso vedere?",
 			image: What,
 			link: "/what",
 			code: "what",

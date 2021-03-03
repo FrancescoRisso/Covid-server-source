@@ -167,12 +167,24 @@ input:checked + .slider:before {
 
 .discoursive {
 	font-family: "Poppins", sans-serif;
-	font-size: larger;
 	text-align: justify !important;
+}
+	
+@media screen and (min-width: 576px) {
+	.discoursive{
+		font-size: larger;	
+	}
+}
+	
+@media screen and (max-width: 576px) {
+	.big{
+		font-size: larger !important;
+	}
 }
 
 .white-bg {
 	background-color: white;
+	overflow-y: auto;
 }
 
 body {
@@ -189,4 +201,8 @@ html {
 
 .center{
 	text-align: center;
+}
+
+.same{
+	width: 25%;
 }

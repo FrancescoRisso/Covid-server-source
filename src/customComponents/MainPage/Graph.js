@@ -37,10 +37,10 @@ class Graph extends React.Component {
 			<ResponsiveContainer width="100%" height={300}>
 				<LineChart data={this.props.data}>
 					<CartesianGrid stroke="#ccc" />
-					{this.props.name == "Rt" ? (
-						<Line dataKey="soglia" key="one" stroke="#B42828" dot={false} strokeWidth={2} />
-					) : this.props.variation ? (
+					{this.props.variation ? (
 						<Line dataKey="zero" key="zero" stroke="#B42828" dot={false} strokeWidth={2} />
+					) : this.props.name == "Rt" ? (
+						<Line dataKey="soglia" key="one" stroke="#B42828" dot={false} strokeWidth={2} />
 					) : (
 						""
 					)}
@@ -57,7 +57,11 @@ class Graph extends React.Component {
 						interval={0}
 					/>
 					{this.props.name == "Rt" ? (
-						<YAxis type="number" domain={[-0.5, 2.5]} allowDataOverflow={true} />
+						this.props.variation ? (
+							<YAxis type="number" domain={[-1, 1]} allowDataOverflow={true} />
+						) : (
+							<YAxis type="number" domain={[-0.5, 2.5]} allowDataOverflow={true} />
+						)
 					) : this.props.percentage ? (
 						<YAxis unit="%" />
 					) : this.props.scale == "Lineare" ? (

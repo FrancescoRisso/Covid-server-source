@@ -91,7 +91,7 @@ class FirstPage extends React.Component {
 
 	render() {
 		return (
-			<div className="container white-bg vheight-100">
+			<div className="container white-bg vheight-100 px-0 px-sm-3">
 				<Header
 					toggleSidebar={this.props.toggleSidebar}
 					sidebarVisible={this.props.sidebarVisible}

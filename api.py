@@ -379,51 +379,48 @@ def smooth_differentiate(y, X, L, alpha):
     return tic.coef_
 
 
-def Rt(fromDate, toDate, positivi, smooth):
+def Rt(fromDate, toDate, positivi, smooth, table):
     positivi = positivi.copy() if positivi else getParamFromQuery(
         "Nuovi_positivi", fromDate, toDate, "STORICO", False, False)
     # Naming format comes from the formula found here: https://github.com/tomorrowdata/COVID-19/blob/main/notebooks/Rt_on_italian_national_data.ipynb
 
-    result = []
+    if table == "VARIAZIONE":
+        result = Rt(
+            fromDate, toDate, positivi, False, "STORICO")
+        for i in range(len(result)-1, 0, -1):
+            for region in result[i].keys():
+                if region != "data" and region != "soglia":
+                    result[i][region] = result[i][region] - result[i-1][region]
+            result[i]["zero"] = 0
+            del result[i]["soglia"]
+        for region in result[0].keys():
+            if region != "data" and region != "soglia":
+                result[0][region] = 0
+        del result[0]["soglia"]
+        result[0]["zero"] = 0
 
-    w = stats.gamma.pdf(np.linspace(1, len(positivi) - 1,
-                                    len(positivi)), a=1.87, scale=1 / 0.28)
-    for t in range(2, len(positivi)):
-        thisDate = {}
-        for region in positivi[t]:
-            if region == "data":
-                thisDate["data"] = positivi[t][region]
-                thisDate["soglia"] = 1
-            elif region != "zero":
-                sum = 0
-                for s in range(1, t):
-                    sum += (positivi[t-s][region] * w[s]
-                            if positivi[t-s][region] else 0)
-                val = 0 if (
-                    sum == 0 or not positivi[t][region]) else positivi[t][region]/sum
-                thisDate[region] = None if np.isnan(
-                    val) or np.isinf(val) else val
-        result.append(thisDate)
+    else:
+        result = []
+
+        w = stats.gamma.pdf(np.linspace(1, len(positivi) - 1,
+                                        len(positivi)), a=1.87, scale=1 / 0.28)
+        for t in range(2, len(positivi)):
+            thisDate = {}
+            for region in positivi[t]:
+                if region == "data":
+                    thisDate["data"] = positivi[t][region]
+                    thisDate["soglia"] = 1
+                elif region != "zero":
+                    sum = 0
+                    for s in range(1, t):
+                        sum += (positivi[t-s][region] * w[s]
+                                if positivi[t-s][region] else 0)
+                    val = 0 if (
+                        sum == 0 or not positivi[t][region]) else positivi[t][region]/sum
+                    thisDate[region] = None if np.isnan(
+                        val) or np.isinf(val) else val
+            result.append(thisDate)
     return smoothGraph(result) if smooth else result
-
-    X = np.tri(len(data), len(data), 0)
-    mat = np.eye(len(data), len(data))-(np.tri(len(data),
-                                               len(data), -1) - np.tri(len(data), len(data), -2))
-    GAMMA = np.dot(mat, mat)
-
-    newdata = []
-    for date in data:
-        newdata.append({"data": date["data"], "zero": 0})
-
-    for region in data[0]:
-        if region not in ["data", "zero"]:
-            thisRegion = []
-            for date in data:
-                thisRegion.append(date[region])
-            thisRegion = smooth_data(thisRegion, X, GAMMA, 100.)
-            for i in range(len(data)):
-                newdata[i][region] = thisRegion[i]
-    return newdata
 
 
 def smoothGraph(data):
@@ -619,10 +616,11 @@ def values():
         for param in params:
             if param == "Rt":
                 if perc or table == "VARIAZIONE":
-                    resultObj[param] = Rt(fromDate, toDate, None, smooth)
+                    resultObj[param] = Rt(
+                        fromDate, toDate, None, smooth, table)
                 else:
                     resultObj[param] = Rt(
-                        fromDate, toDate, resultObj.get("Nuovi_positivi"), smooth)
+                        fromDate, toDate, resultObj.get("Nuovi_positivi"), smooth, table)
 
             else:
                 if param in directReturnKeys:

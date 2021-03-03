@@ -50,6 +50,7 @@ class Control extends React.Component {
 			this.setState({ confirm: false });
 			return (
 				<Redirect
+					push={true}
 					className="white-text"
 					to={`/${this.props.selectedMode}/p/${this.state.percentage ? "1" : "0"}/v/${
 						this.state.variation ? "1" : "0"

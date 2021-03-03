@@ -39,8 +39,8 @@ class AboutUs extends React.Component {
 
 	render() {
 		return (
-			<div className="left">
-				<p className="mt-4 big ml-5">
+			<div>
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>CHI SIAMO?</b>
 				</p>
 				<p>
@@ -61,7 +61,7 @@ class AboutUs extends React.Component {
 					purtroppo o per fortuna.
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>DA DOVE È NATA L'IDEA?</b>
 				</p>
 				<p>
@@ -77,7 +77,7 @@ class AboutUs extends React.Component {
 					più informazioni accurate.
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>LA CREAZIONE DEL SITO</b>
 				</p>
 				<p>Ci siamo quindi messi a cercare i valori prima, per rappresentarli poi su questo sito.</p>
@@ -91,7 +91,7 @@ class AboutUs extends React.Component {
 					stata la mente del sito, mentre io mi definisco "la sua tastiera".
 				</p>
 				<hr />
-				<p className="mt-4 big ml-5">
+				<p className="mt-4 big ml-sm-5 ml-3">
 					<b>CHI CI HA AIUTATI</b>
 				</p>
 				<p>
@@ -111,7 +111,7 @@ class AboutUs extends React.Component {
 						.sort()
 						.map((name) => {
 							return (
-								<li className="mt-2">
+								<li className="mt-2" key={name}>
 									{name}, {this.helpers[name]}.
 								</li>
 							);

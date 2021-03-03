@@ -22,6 +22,7 @@ dependences:
 	- Header
 	- NavMenu
 	- WhatWeShow
+	- ModifiedData
 	- pagesList
 	- Redirect (from react-router-dom)
 
@@ -33,6 +34,7 @@ import AboutUs from "./AboutUs";
 import Header from "../Header/Header";
 import NavMenu from "../NavMenu";
 import WhatWeShow from "./WhatWeShow";
+import ModifiedData from "./ModifiedData";
 import pagesList from "../pagesList";
 import { Redirect } from "react-router-dom";
 
@@ -51,7 +53,7 @@ class DiscursivePage extends React.Component {
 			code = "err";
 		}
 		return (
-			<div className="container vheight-100 white-bg">
+			<div className="container vheight-100 white-bg px-0 px-sm-3">
 				<Header
 					toggleSidebar={this.props.toggleSidebar}
 					sidebarVisible={this.props.sidebarVisible}
@@ -67,7 +69,7 @@ class DiscursivePage extends React.Component {
 							otherStuffToDo={() => {}}
 						/>
 						<div id="main-page" className="col-12">
-							<div className="col-12 discoursive">
+							<div className="col-12 discoursive p-0">
 								{this.props.path.startsWith("/aboutUs") ? (
 									this.props.path == "/aboutUs" ? (
 										<AboutUs />
@@ -85,6 +87,12 @@ class DiscursivePage extends React.Component {
 										<WhatWeShow graphsList={this.props.graphsList} />
 									) : (
 										<Redirect to="/what" />
+									)
+								) : this.props.path.startsWith("/modifiedData") ? (
+									this.props.path == "/modifiedData" ? (
+										<ModifiedData />
+									) : (
+										<ModifiedData to="/modifiedData" />
 									)
 								) : this.props.path == "/ServerError" ? (
 									<p className="mt-2 center">Errore del server</p>
