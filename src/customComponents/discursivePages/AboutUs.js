@@ -25,6 +25,7 @@ class AboutUs extends React.Component {
 	}
 
 	helpers = {
+		"Carlo Caiaffa": "che ci ha fornito il suo fondamentale aiuto nella coordinazione e indirizzamento del sito",
 		"Giulia Masuello":
 			"studentessa presso IED Milano, che ci ha guidati nella gestione organizzativa ed estetica del sito",
 		"Letizia Repetto":

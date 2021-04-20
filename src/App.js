@@ -17,12 +17,14 @@ functions:
 	- linesList[]: the list of the graph lines, including info about each one's color and visibility
 	- defaultGraphs[]: the names of the graphs shown by default
 	- error: if the return of the api function is erroneous
+	- isDataLoading: if the data is being loaded at the moment
 
 	- toggleSidebar(): inverts the visibility of the sidebar
 	- changeLinesList(edit): ovverrides linesList with edit
 	- getLinesList(data): calculates linesList and returns it (does not directly update it). Needs to receive the data from the database
 	- graphsNamesToNum(names, allNames): translates the list of names of selected graphs to a string of 0s and 1s which represent which graphs in allGraphs should be loaded
 	- graphsNumToNames(num, allNames): translates the string of 0s and 1s as above back to the array (this compression is for shorting the url)
+	- loadData(params, thisQuery): loads the required data from the api server
 
 imported into:
 
@@ -31,8 +33,6 @@ dependences:
 	- BrowserRouter, Switch, Route (from react-router-dom)
 	- App.css (for css styling)
 	- Page
-	- Header
-	- NavMenu
 	- DiscursivePage
 
 */
@@ -42,8 +42,6 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-d
 import "./App.css";
 import * as Api from "./api.js";
 import Page from "./customComponents/Page";
-import Header from "./customComponents/Header/Header";
-import NavMenu from "./customComponents/NavMenu";
 import FirstPage from "./customComponents/discursivePages/FirstPage";
 import DiscursivePage from "./customComponents/discursivePages/DiscursivePage";
 
@@ -64,6 +62,7 @@ class App extends React.Component {
 	isGraphdataLoaded = false;
 	linesList = [];
 	error = false;
+	isDataLoading = false;
 
 	render() {
 		if (this.allGraphs.length == 0) {
@@ -108,35 +107,14 @@ class App extends React.Component {
 										return <Redirect push={true} to="/ServerError" />;
 									}
 									if (
-										thisQuery.slice(0, -4) != this.lastQuery.slice(0, -4) ||
-										!this.isGraphdataLoaded
+										(thisQuery.slice(0, -4) != this.lastQuery.slice(0, -4) ||
+											!this.isGraphdataLoaded ||
+											this.error) &&
+										!this.isDataLoading
 									) {
-										Api.getGraphs(
-											params.fromDate,
-											params.toDate == "auto"
-												? new Date(Date.now()).toISOString().substr(0, 10)
-												: params.toDate,
-											this.graphsNumToNames(params.graphnum, this.allGraphs),
-											params.variation == "1" ? "VARIAZIONE" : "STORICO",
-											params.percentage == "1",
-											params.smooth == "1"
-										)
-											.then((result) => {
-												this.data = result;
-												if (this.linesList.length == 0)
-													this.linesList = this.getLinesList(result);
-												this.lastQuery = thisQuery;
-												this.isGraphdataLoaded = true;
-												this.isDbLoaded = false;
-												this.error = false;
-												this.forceUpdate();
-											})
-											.catch((e) => {
-												this.error = true;
-												this.forceUpdate();
-											});
-										return <Page loading={true} />;
+										this.loadData(params, thisQuery);
 									}
+									if(this.isDataLoading) return <Page loading={true} selectedMode="graph" />
 									return (
 										<Page
 											currentSettings={{
@@ -172,55 +150,45 @@ class App extends React.Component {
 									document.body.style.backgroundColor = "#f5c6cb";
 									const params = match.params;
 									const thisQuery = `/p/${params.percentage}/v/${params.variation}/g/${params.graphnum}/fd/${params.fromDate}/td/${params.toDate}/s/${params.smooth}/l/${params.logScale}`;
-									if (
-										thisQuery.slice(0, -4) != this.lastQuery.slice(0, -4) ||
-										!this.isGraphdataLoaded
-									) {
-										Api.getGraphs(
-											params.fromDate,
-											params.toDate == "auto"
-												? new Date(Date.now()).toISOString().substr(0, 10)
-												: params.toDate,
-											this.graphsNumToNames(params.graphnum, this.allGraphs),
-											params.variation == "1" ? "VARIAZIONE" : "STORICO",
-											params.percentage == "1"
-										).then((result) => {
-											this.data = result;
-											if (this.linesList.length == 0) this.linesList = this.getLinesList(result);
-											this.lastQuery = thisQuery;
-											this.isGraphdataLoaded = true;
-											this.isDbLoaded = false;
-											this.forceUpdate();
-										});
-										return <Page loading={true} selectedMode="map" />;
+									if (this.error) {
+										this.error = false;
+										return <Redirect push={true} to="/ServerError" />;
 									}
+									if (
+										(thisQuery.slice(0, -4) != this.lastQuery.slice(0, -4) ||
+											!this.isGraphdataLoaded ||
+											this.error) &&
+										!this.isDataLoading
+									) {
+										this.loadData(params, thisQuery);
+									}
+									if(this.isDataLoading) return <Page loading={true} selectedMode="map" />
 									return (
-										<div className="vheight-100 pinky-bg rounded">
-											<Page
-												currentSettings={{
-													graphs: this.graphsNumToNames(params.graphnum, this.allGraphs),
-													startDate: params.fromDate,
-													endDate:
-														params.toDate == "auto"
-															? new Date(Date.now()).toISOString().substr(0, 10)
-															: params.toDate,
-													variation: params.variation == "1",
-													percentage: params.percentage == "1"
-												}}
-												graphsNamesToNum={this.graphsNamesToNum}
-												loading={false}
-												selectedMode="map"
-												lastQuery={this.lastQuery}
-												currentScale={params.logScale == "1" ? "Logaritmica" : "Lineare"}
-												linesList={this.linesList}
-												changeLinesList={this.changeLinesList}
-												allGraphs={this.allGraphs}
-												data={this.data}
-												defaultQueryParams={this.defaultQueryParams}
-												toggleSidebar={() => {}}
-												sidebarVisible={false}
-											/>
-										</div>
+										<Page
+											currentSettings={{
+												graphs: this.graphsNumToNames(params.graphnum, this.allGraphs),
+												startDate: params.fromDate,
+												endDate:
+													params.toDate == "auto"
+														? new Date(Date.now()).toISOString().substr(0, 10)
+														: params.toDate,
+												variation: params.variation == "1",
+												percentage: params.percentage == "1",
+												smooth: params.smooth == "1"
+											}}
+											graphsNamesToNum={this.graphsNamesToNum}
+											loading={false}
+											selectedMode="map"
+											lastQuery={this.lastQuery}
+											currentScale={params.logScale == "1" ? "Logaritmica" : "Lineare"}
+											linesList={this.linesList}
+											changeLinesList={this.changeLinesList}
+											allGraphs={this.allGraphs}
+											data={this.data}
+											defaultQueryParams={this.defaultQueryParams}
+											toggleSidebar={this.toggleSidebar}
+											sidebarVisible={this.state.sidebarVisible}
+										/>
 									);
 								}}
 							/>
@@ -386,6 +354,45 @@ class App extends React.Component {
 			if (digit == "1") names.push(allNames[index].db);
 		});
 		return names;
+	};
+
+	loadData = (params, thisQuery) => {
+		this.isDataLoading = true;
+		this.data = {};
+		var toLoad = Object.fromEntries(
+			this.graphsNumToNames(params.graphnum, this.allGraphs).map((g) => [g, "notDone"])
+		);
+		var graphNames = Object.keys(toLoad);
+		let i;
+		if ((i = graphNames.indexOf("Rt")) != -1) [graphNames[i], graphNames[0]] = [graphNames[0], graphNames[i]];
+		graphNames.forEach((graph) => {
+			Api.getGraphs(
+				params.fromDate,
+				params.toDate == "auto" ? new Date(Date.now()).toISOString().substr(0, 10) : params.toDate,
+				graph,
+				params.variation == "1" ? "VARIAZIONE" : "STORICO",
+				params.percentage == "1",
+				params.smooth == "1"
+			)
+				.then((result) => {
+					this.data[graph] = result[graph];
+					if (this.linesList.length == 0) this.linesList = this.getLinesList(result);
+					this.lastQuery = thisQuery;
+					toLoad[graph] = "ok";
+					if (graphNames.filter((x) => toLoad[x] != "ok").length == 0) {
+						this.isGraphdataLoaded = true;
+						this.error = false;
+						this.isDataLoading = false;
+						this.forceUpdate();
+					}
+					this.isDbLoaded = false;
+				})
+				.catch((e) => {
+					console.log(e);
+					this.error = true;
+					this.forceUpdate();
+				});
+		});
 	};
 }
 

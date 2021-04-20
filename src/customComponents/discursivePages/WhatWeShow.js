@@ -105,9 +105,8 @@ class WhatWeShow extends React.Component {
 							return -1;
 						})
 						.map((graph) => {
-							console.log(graph);
 							return (
-								<li>
+								<li key={graph.name}>
 									<b>{graph.name}</b>
 									<p>
 										<small>{graph.description}</small>

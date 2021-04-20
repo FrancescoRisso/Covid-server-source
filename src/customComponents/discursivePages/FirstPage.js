@@ -30,6 +30,7 @@ dependences:
 	- NavMenu
 	- pagesList
 	- FirstPageButton
+	- Footer
 
 */
 
@@ -38,6 +39,7 @@ import Header from "../Header/Header";
 import NavMenu from "../NavMenu";
 import pagesList from "../pagesList";
 import FirstPageButton from "./FirstPageButton";
+import Footer from "../Footer";
 
 class FirstPage extends React.Component {
 	constructor(props) {
@@ -92,49 +94,54 @@ class FirstPage extends React.Component {
 	render() {
 		return (
 			<div className="container white-bg vheight-100 px-0 px-sm-3">
-				<Header
-					toggleSidebar={this.props.toggleSidebar}
-					sidebarVisible={this.props.sidebarVisible}
-					selectedMode="initial-page"
-					otherStuffToDo={this.updateDimension}
-					lastQuery={this.props.lastQuery}
-					defaultQueryParams={this.props.defaultQueryParams}
-				/>
-				<div className="col-12">
-					<div className="row mx-0">
-						<NavMenu
-							selectedMode="initial-page"
-							lastQuery={this.props.lastQuery}
-							defaultQueryParams={this.props.defaultQueryParams}
-							otherStuffToDo={()=>{}}
-						/>
-						<div id="main-page" className="col-12">
-							{this.state.btnWidth == 0
-								? ""
-								: this.range(
-										0,
-										this.state.buttons.length,
-										this.state.count == 0 ? 1 : this.state.count
-								  ).map((item, index, array) => {
-										if (index == 0) return "";
-										return (
-											<div key={item}>
-												{this.state.buttons.slice(array[index - 1], item).map((button, i) => {
-													return (
-														<FirstPageButton
-															generalSettings={this.state}
-															buttonSettings={button}
-															number={i}
-															key={i}
-														/>
-													);
-												})}
-											</div>
-										);
-								  })}
+				<div className="above-footer">
+					<Header
+						toggleSidebar={this.props.toggleSidebar}
+						sidebarVisible={this.props.sidebarVisible}
+						selectedMode="initial-page"
+						otherStuffToDo={this.updateDimension}
+						lastQuery={this.props.lastQuery}
+						defaultQueryParams={this.props.defaultQueryParams}
+					/>
+					<div className="col-12">
+						<div className="row mx-0">
+							<NavMenu
+								selectedMode="initial-page"
+								lastQuery={this.props.lastQuery}
+								defaultQueryParams={this.props.defaultQueryParams}
+								otherStuffToDo={() => {}}
+							/>
+							<div id="main-page" className="col-12">
+								{this.state.btnWidth == 0
+									? ""
+									: this.range(
+											0,
+											this.state.buttons.length,
+											this.state.count == 0 ? 1 : this.state.count
+									  ).map((item, index, array) => {
+											if (index == 0) return "";
+											return (
+												<div key={item}>
+													{this.state.buttons
+														.slice(array[index - 1], item)
+														.map((button, i) => {
+															return (
+																<FirstPageButton
+																	generalSettings={this.state}
+																	buttonSettings={button}
+																	number={i}
+																	key={i}
+																/>
+															);
+														})}
+												</div>
+											);
+									  })}
+							</div>
 						</div>
 					</div>
 				</div>
+				<Footer />
 			</div>
 		);
 	}

@@ -33,6 +33,7 @@ dependences:
 	- Loading
 	- Control
 	- NavMenu
+	- Footer
 
 */
 
@@ -43,6 +44,7 @@ import MainPage from "./MainPage/MainPage";
 import Loading from "./Loading";
 import Control from "./Control/Control";
 import NavMenu from "./NavMenu";
+import Footer from "./Footer";
 
 class Page extends React.Component {
 	constructor(props) {
@@ -52,8 +54,14 @@ class Page extends React.Component {
 
 	render() {
 		return (
-			<div className={`${this.props.selectedMode == "map" ? "container white-bg px-0 px-sm-3" : "container-fluid px-0 px-sm-3"} `}>
-				<div className="d-flex flex-column vheight-100 align-items-start">
+			<div
+				className={`${
+					this.props.selectedMode == "map"
+						? "container white-bg px-0 px-sm-3"
+						: "container-fluid px-0 px-sm-3"
+				} `}
+			>
+				<div className="d-flex flex-column above-footer align-items-start">
 					<Header
 						selectedMode={this.props.selectedMode}
 						toggleSidebar={this.props.toggleSidebar}
@@ -107,7 +115,11 @@ class Page extends React.Component {
 											""
 										)}
 										<span
-											className={this.props.sidebarVisible ? "col-xl-9 col-md-8 px-0" : "col-12 px-0 px-sm-3"}
+											className={
+												this.props.sidebarVisible
+													? "col-xl-9 col-md-8 px-0"
+													: "col-12 px-0 px-sm-3"
+											}
 										>
 											<MainPage
 												viewMode={this.props.selectedMode}
@@ -142,6 +154,7 @@ class Page extends React.Component {
 						</div>
 					)}
 				</div>
+				<Footer />
 			</div>
 		);
 	}

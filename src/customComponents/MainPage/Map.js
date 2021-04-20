@@ -135,9 +135,9 @@ class Map extends React.Component {
 					className={this.state.selected != "" ? "border rounded red-outline d-block white-color" : "d-none"}
 					style={{
 						position: "absolute",
-						top: this.state.mouseY - 130 + this.state.dy,
+						top: this.state.mouseY + this.state.dy,
 						left: this.state.mouseX - this.state.dx,
-						transform: `translateX(-50%)`
+						transform: `translate(-50%, -195%)`
 					}}
 				>
 					<p>

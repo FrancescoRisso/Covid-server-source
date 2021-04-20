@@ -27,6 +27,7 @@ dependences:
 
 import React from "react";
 import pagesList from "../pagesList";
+import Logo from "../../images/logo.png";
 
 class HeaderContent extends React.Component {
 	smallerPages = ["refs", "initial-page", "map", "us", "what", "err"];
@@ -47,6 +48,14 @@ class HeaderContent extends React.Component {
 					}
 				>
 					<div className="container-fluid">
+						<img
+							src={Logo}
+							className={`logoImg${
+								this.smallerPages.indexOf(this.props.selectedMode) == -1 && this.props.big
+									? "Small"
+									: "Big"
+							} mb-sm-0 mb-2`}
+						/>
 						<div className="d-sm-flex d-none">
 							<button
 								className="btn btn-danger border mr-auto my-auto navbar-dark"
@@ -76,7 +85,6 @@ class HeaderContent extends React.Component {
 								<span className="navbar-toggler-icon"></span>
 							</button>
 							<span>
-								<h1>Dati pandemia Covid-19</h1>
 								<h4>{page.length == 0 ? "" : page.title}</h4>
 							</span>
 							<button className="btn btn-danger ml-auto invisible">
@@ -112,7 +120,6 @@ class HeaderContent extends React.Component {
 							</button>
 						</div>
 						<span className="d-sm-none">
-							<h2>Dati pandemia Covid-19</h2>
 							<h4>{page.length == 0 ? "" : page.title}</h4>
 						</span>
 						{["graph", "map"].indexOf(this.props.selectedMode) != -1 ? (

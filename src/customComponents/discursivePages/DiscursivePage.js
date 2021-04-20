@@ -24,6 +24,7 @@ dependences:
 	- WhatWeShow
 	- ModifiedData
 	- pagesList
+	- Footer
 	- Redirect (from react-router-dom)
 
 */
@@ -37,6 +38,7 @@ import WhatWeShow from "./WhatWeShow";
 import ModifiedData from "./ModifiedData";
 import pagesList from "../pagesList";
 import { Redirect } from "react-router-dom";
+import Footer from "../Footer";
 
 class DiscursivePage extends React.Component {
 	constructor(props) {
@@ -103,6 +105,7 @@ class DiscursivePage extends React.Component {
 						</div>
 					</div>
 				</div>
+				<Footer />
 			</div>
 		);
 	}
